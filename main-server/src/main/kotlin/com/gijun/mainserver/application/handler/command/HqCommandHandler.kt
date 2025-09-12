@@ -12,7 +12,6 @@ import com.gijun.mainserver.application.port.`in`.organziation.hq.DeleteHqUseCas
 import com.gijun.mainserver.application.port.`in`.organziation.hq.UpdateHqUseCase
 import com.gijun.mainserver.application.port.out.organization.hq.HqCommandRepository
 import com.gijun.mainserver.application.port.out.organization.hq.HqQueryRepository
-import com.gijun.mainserver.infrastructure.config.WriteTransaction
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -23,7 +22,7 @@ class HqCommandHandler(
     private val hqQueryRepository: HqQueryRepository,
 ) : CreateHqUseCase, UpdateHqUseCase, DeleteHqUseCase {
 
-    @WriteTransaction
+    @Transactional
     override fun createHqExecute(command: CreateHqCommand): CreateHqResult {
         if (hqQueryRepository.existsByName(command.name)) {
             throw DuplicateKeyException("Hq name already exists : {$command.name}")
@@ -34,7 +33,7 @@ class HqCommandHandler(
             .let { HqApplicationMapper.toCreateHqResultFromDomain(it) }
     }
 
-    @WriteTransaction
+    @Transactional
     override fun updateHqExecute(command: UpdateHqCommand): UpdateHqResult {
         val existingHq = hqQueryRepository.findById(command.hqId)
             ?: throw NoSuchElementException("HQ not found with id: ${command.hqId}")
@@ -60,7 +59,7 @@ class HqCommandHandler(
             .let { HqApplicationMapper.toUpdateHqResultFromDomain(it, updatedFields) }
     }
 
-    @WriteTransaction
+    @Transactional
     override fun deleteHqExecute(command: DeleteHqCommand): DeleteHqResult {
         if (!hqQueryRepository.existsById(command.hqId)) {
             throw NoSuchElementException("HQ not found with id: ${command.hqId}")

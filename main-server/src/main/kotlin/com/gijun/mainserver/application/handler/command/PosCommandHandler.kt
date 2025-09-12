@@ -7,9 +7,9 @@ import com.gijun.mainserver.application.port.`in`.organziation.pos.CreatePosUseC
 import com.gijun.mainserver.application.port.out.organization.pos.PosCommandRepository
 import com.gijun.mainserver.application.port.out.organization.pos.PosQueryRepository
 import com.gijun.mainserver.application.port.out.organization.store.StoreQueryRepository
-import com.gijun.mainserver.infrastructure.config.WriteTransaction
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 
 @Component
 class PosCommandHandler(
@@ -18,7 +18,7 @@ class PosCommandHandler(
     private val storeQueryRepository: StoreQueryRepository
 ) : CreatePosUseCase {
 
-    @WriteTransaction
+    @Transactional
     override fun createPosExecute(command: CreatePosCommand): CreatePosResult {
         // Check if Store exists
         if (!storeQueryRepository.existsById(command.storeId)) {

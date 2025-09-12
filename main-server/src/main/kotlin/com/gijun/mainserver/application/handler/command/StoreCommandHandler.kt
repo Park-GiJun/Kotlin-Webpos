@@ -7,9 +7,9 @@ import com.gijun.mainserver.application.port.`in`.organziation.store.CreateStore
 import com.gijun.mainserver.application.port.out.organization.hq.HqQueryRepository
 import com.gijun.mainserver.application.port.out.organization.store.StoreCommandRepository
 import com.gijun.mainserver.application.port.out.organization.store.StoreQueryRepository
-import com.gijun.mainserver.infrastructure.config.WriteTransaction
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 
 @Component
 class StoreCommandHandler(
@@ -18,7 +18,7 @@ class StoreCommandHandler(
     private val hqQueryRepository: HqQueryRepository
 ) : CreateStoreUseCase {
 
-    @WriteTransaction
+    @Transactional
     override fun createStoreExecute(command: CreateStoreCommand): CreateStoreResult {
         // Check if HQ exists
         if (!hqQueryRepository.existsById(command.hqId)) {

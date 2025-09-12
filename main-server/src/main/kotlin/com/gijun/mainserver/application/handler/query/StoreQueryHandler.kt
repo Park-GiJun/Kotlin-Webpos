@@ -6,25 +6,25 @@ import com.gijun.mainserver.application.dto.query.store.GetStoresByHqIdQuery
 import com.gijun.mainserver.application.dto.result.store.StoreResult
 import com.gijun.mainserver.application.port.`in`.organziation.store.GetStoreUseCase
 import com.gijun.mainserver.application.port.out.organization.store.StoreQueryRepository
-import com.gijun.mainserver.infrastructure.config.ReadOnlyTransaction
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 
 @Component
 class StoreQueryHandler(
     private val storeQueryRepository: StoreQueryRepository
 ) : GetStoreUseCase {
 
-    @ReadOnlyTransaction
+    @Transactional(readOnly = true)
     @Cacheable(value = ["store"], key = "#query.storeId")
     override fun getStoreById(query: GetStoreByIdQuery): StoreResult {
         return storeQueryRepository.findStoreResultById(query.storeId)
             ?: throw NoSuchElementException("Store not found with id: ${query.storeId}")
     }
 
-    @ReadOnlyTransaction
+    @Transactional(readOnly = true)
     @Cacheable(
         value = ["store-list"],
         key = "#query.hqId + '-' + #pageable.pageNumber + '-' + #pageable.pageSize"
@@ -37,13 +37,13 @@ class StoreQueryHandler(
         }
     }
 
-    @ReadOnlyTransaction
+    @Transactional(readOnly = true)
     @Cacheable(value = ["store-by-hq"], key = "#query.hqId")
     override fun getStoresByHqId(query: GetStoresByHqIdQuery): List<StoreResult> {
         return storeQueryRepository.findStoreResultsByHqId(query.hqId)
     }
 
-    @ReadOnlyTransaction
+    @Transactional(readOnly = true)
     override fun searchStoreByName(name: String): List<StoreResult> {
         return storeQueryRepository.findStoreResultsByNameContaining(name)
     }
