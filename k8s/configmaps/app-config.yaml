@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: main-server-config
+  namespace: webpos
+data:
+  SPRING_PROFILES_ACTIVE: "k8s"
+  SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-main.webpos-infra:3306/main_server"
+  SPRING_DATASOURCE_USERNAME: "mainuser"
+  SPRING_REDIS_HOST: "redis.webpos-infra"
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka.webpos-infra:9092"
+  SERVER_PORT: "8080"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pos-server-config
+  namespace: webpos
+data:
+  SPRING_PROFILES_ACTIVE: "k8s"
+  SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-pos.webpos-infra:3306/pos_server"
+  SPRING_DATASOURCE_USERNAME: "posuser"
+  SPRING_REDIS_HOST: "redis.webpos-infra"
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka.webpos-infra:9092"
+  MAIN_SERVER_URL: "http://main-server.webpos:8080"
+  SERVER_PORT: "8080"

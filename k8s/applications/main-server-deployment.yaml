@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: main-server
+  namespace: webpos
+  labels:
+    app: main-server
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: main-server
+  template:
+    metadata:
+      labels:
+        app: main-server
+        version: v1
+    spec:
+      containers:
+      - name: main-server
+        image: webpos/main-server:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          valueFrom:
+            configMapKeyRef:
+              name: main-server-config
+              key: SPRING_PROFILES_ACTIVE
+        - name: SPRING_DATASOURCE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: main-server-config
+              key: SPRING_DATASOURCE_URL
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: main-server-config
+              key: SPRING_DATASOURCE_USERNAME
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: main-server-secret
+              key: SPRING_DATASOURCE_PASSWORD
+        - name: SPRING_REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: main-server-config
+              key: SPRING_REDIS_HOST
+        - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+          valueFrom:
+            configMapKeyRef:
+              name: main-server-config
+              key: SPRING_KAFKA_BOOTSTRAP_SERVERS
+        - name: SERVER_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: main-server-config
+              key: SERVER_PORT
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 30
+      initContainers:
+      - name: wait-for-mysql
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nc -z mysql-main.webpos-infra 3306; do echo waiting for mysql; sleep 2; done;']
+      - name: wait-for-redis
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nc -z redis.webpos-infra 6379; do echo waiting for redis; sleep 2; done;']
+      - name: wait-for-kafka
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nc -z kafka.webpos-infra 9092; do echo waiting for kafka; sleep 2; done;']
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: main-server
+  namespace: webpos
+  labels:
+    app: main-server
+spec:
+  selector:
+    app: main-server
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
