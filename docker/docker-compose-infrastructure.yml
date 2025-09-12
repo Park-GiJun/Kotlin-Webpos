@@ -1,10 +1,11 @@
 version: '3.8'
 
-# Complete MSA Setup with Infrastructure and Application Services
-# Use this file to start the entire system including infrastructure and microservices
+# MSA Infrastructure Services
+# This file contains only the infrastructure components (databases, message queues, etc.)
+# Application services are defined in the main docker-compose.yml
 
 services:
-  # Infrastructure Services (extend from infrastructure compose file)
+  # Main Server Database
   mysql-main:
     image: mysql:8.0
     container_name: msa-mysql-main
@@ -27,6 +28,7 @@ services:
     networks:
       - msa-network
 
+  # POS Server Database (separate database for MSA)
   mysql-pos:
     image: mysql:8.0
     container_name: msa-mysql-pos
@@ -49,6 +51,7 @@ services:
     networks:
       - msa-network
 
+  # Shared Redis for caching
   redis:
     image: redis:7-alpine
     container_name: msa-redis
@@ -61,6 +64,7 @@ services:
     networks:
       - msa-network
 
+  # Message Queue for service communication
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     container_name: msa-zookeeper
@@ -85,6 +89,7 @@ services:
     networks:
       - msa-network
 
+  # Service Discovery (optional - for future enhancement)
   consul:
     image: consul:latest
     container_name: msa-consul
@@ -93,77 +98,6 @@ services:
     command: agent -server -ui -node=server-1 -bootstrap-expect=1 -client=0.0.0.0
     networks:
       - msa-network
-
-  # Microservices
-  main-server:
-    build: 
-      context: ../main-server
-      dockerfile: Dockerfile
-    container_name: webpos-main-server
-    restart: always
-    ports:
-      - "8080:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-main:3306/main_server
-      - SPRING_DATASOURCE_USERNAME=mainuser
-      - SPRING_DATASOURCE_PASSWORD=mainpassword
-      - SPRING_REDIS_HOST=redis
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-    depends_on:
-      - mysql-main
-      - redis
-      - kafka
-    networks:
-      - msa-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  pos-server:
-    build: 
-      context: ../pos-server
-      dockerfile: Dockerfile
-    container_name: webpos-pos-server
-    restart: always
-    ports:
-      - "8081:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-pos:3306/pos_server
-      - SPRING_DATASOURCE_USERNAME=posuser
-      - SPRING_DATASOURCE_PASSWORD=pospassword
-      - SPRING_REDIS_HOST=redis
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - MAIN_SERVER_URL=http://main-server:8080
-    depends_on:
-      - mysql-pos
-      - redis
-      - kafka
-      - main-server
-    networks:
-      - msa-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # API Gateway (future enhancement)
-  # gateway:
-  #   image: nginx:alpine
-  #   container_name: msa-gateway
-  #   ports:
-  #     - "80:80"
-  #   volumes:
-  #     - ./nginx.conf:/etc/nginx/nginx.conf
-  #   depends_on:
-  #     - main-server
-  #     - pos-server
-  #   networks:
-  #     - msa-network
 
 volumes:
   mysql_main_data:

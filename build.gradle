@@ -1,3 +1,6 @@
+// MSA Project Root Configuration
+// Each service (main-server, pos-server) is an independent microservice
+
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.9.25' apply false
     id 'org.jetbrains.kotlin.plugin.spring' version '1.9.25' apply false
@@ -6,16 +9,15 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.jpa' version '1.9.25' apply false
 }
 
-allprojects {
-    group = 'com.gijun'
+// Common configuration for MSA services
+subprojects {
+    group = 'com.gijun.webpos'
     version = '0.0.1-SNAPSHOT'
-
+    
     repositories {
         mavenCentral()
     }
-}
 
-subprojects {
     apply plugin: 'org.jetbrains.kotlin.jvm'
     apply plugin: 'org.jetbrains.kotlin.plugin.spring'
     apply plugin: 'org.springframework.boot'
@@ -28,20 +30,42 @@ subprojects {
         }
     }
 
+    // Common MSA dependencies
     dependencies {
-        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+        // Spring Boot starters
         implementation 'org.springframework.boot:spring-boot-starter-web'
+        implementation 'org.springframework.boot:spring-boot-starter-actuator'
+        implementation 'org.springframework.boot:spring-boot-starter-validation'
+        
+        // Data persistence (each service can have its own DB)
+        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+        runtimeOnly 'com.mysql:mysql-connector-j'
+        implementation 'com.zaxxer:HikariCP'
+        
+        // Cache and messaging for MSA
         implementation 'org.springframework.boot:spring-boot-starter-data-redis'
         implementation 'org.springframework.boot:spring-boot-starter-cache'
         implementation 'org.redisson:redisson-spring-boot-starter:3.24.3'
         implementation 'org.springframework.kafka:spring-kafka'
+        
+        // Service discovery and circuit breaker (future MSA features)
+        implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+        implementation 'io.github.resilience4j:resilience4j-spring-boot3'
+        
+        // JSON and Kotlin support
         implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
         implementation 'org.jetbrains.kotlin:kotlin-reflect'
-        implementation 'com.zaxxer:HikariCP'
-        runtimeOnly 'com.mysql:mysql-connector-j'
+        
+        // Testing
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
         testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:2023.0.3"
+        }
     }
 
     kotlin {
@@ -61,34 +85,72 @@ subprojects {
     }
 }
 
-task buildAll {
+// MSA Management Tasks
+task buildAllServices {
     dependsOn ':main-server:build', ':pos-server:build'
-    description 'Build all servers'
-    group 'build'
+    description 'Build all microservices'
+    group 'msa'
 }
 
-task runMainServer(type: Exec) {
-    dependsOn ':main-server:build'
-    commandLine './gradlew', ':main-server:bootRun'
-    description 'Run main server'
-    group 'application'
-}
-
-task runPosServer(type: Exec) {
-    dependsOn ':pos-server:build'
-    commandLine './gradlew', ':pos-server:bootRun'
-    description 'Run POS server'
-    group 'application'
-}
-
-task testAll {
+task testAllServices {
     dependsOn ':main-server:test', ':pos-server:test'
-    description 'Run tests for all servers'
-    group 'verification'
+    description 'Run tests for all microservices'
+    group 'msa'
 }
 
-task cleanAll {
+task cleanAllServices {
     dependsOn ':main-server:clean', ':pos-server:clean'
-    description 'Clean all servers'
-    group 'build'
+    description 'Clean all microservices'
+    group 'msa'
+}
+
+// Docker tasks for MSA deployment
+task buildDockerImages {
+    dependsOn buildAllServices
+    description 'Build Docker images for all services'
+    group 'msa-docker'
+    doLast {
+        exec {
+            workingDir 'main-server'
+            commandLine 'docker', 'build', '-t', 'webpos/main-server:latest', '.'
+        }
+        exec {
+            workingDir 'pos-server'
+            commandLine 'docker', 'build', '-t', 'webpos/pos-server:latest', '.'
+        }
+    }
+}
+
+task startMsaInfrastructure {
+    description 'Start MSA infrastructure (databases, message queues, etc.)'
+    group 'msa-docker'
+    doLast {
+        exec {
+            workingDir 'docker'
+            commandLine 'docker-compose', '-f', 'docker-compose-infrastructure.yml', 'up', '-d'
+        }
+    }
+}
+
+task startAllServices {
+    dependsOn startMsaInfrastructure, buildDockerImages
+    description 'Start all MSA services with infrastructure'
+    group 'msa-docker'
+    doLast {
+        exec {
+            workingDir 'docker'
+            commandLine 'docker-compose', 'up', '-d'
+        }
+    }
+}
+
+task stopAllServices {
+    description 'Stop all MSA services and infrastructure'
+    group 'msa-docker'
+    doLast {
+        exec {
+            workingDir 'docker'
+            commandLine 'docker-compose', 'down'
+        }
+    }
 }
