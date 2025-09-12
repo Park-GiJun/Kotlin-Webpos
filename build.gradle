@@ -1,0 +1,94 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.9.25' apply false
+    id 'org.jetbrains.kotlin.plugin.spring' version '1.9.25' apply false
+    id 'org.springframework.boot' version '3.5.5' apply false
+    id 'io.spring.dependency-management' version '1.1.7' apply false
+    id 'org.jetbrains.kotlin.plugin.jpa' version '1.9.25' apply false
+}
+
+allprojects {
+    group = 'com.gijun'
+    version = '0.0.1-SNAPSHOT'
+
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects {
+    apply plugin: 'org.jetbrains.kotlin.jvm'
+    apply plugin: 'org.jetbrains.kotlin.plugin.spring'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'org.jetbrains.kotlin.plugin.jpa'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
+
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+        implementation 'org.springframework.boot:spring-boot-starter-cache'
+        implementation 'org.redisson:redisson-spring-boot-starter:3.24.3'
+        implementation 'org.springframework.kafka:spring-kafka'
+        implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
+        implementation 'org.jetbrains.kotlin:kotlin-reflect'
+        implementation 'com.zaxxer:HikariCP'
+        runtimeOnly 'com.mysql:mysql-connector-j'
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    }
+
+    kotlin {
+        compilerOptions {
+            freeCompilerArgs.addAll '-Xjsr305=strict'
+        }
+    }
+
+    allOpen {
+        annotation 'jakarta.persistence.Entity'
+        annotation 'jakarta.persistence.MappedSuperclass'
+        annotation 'jakarta.persistence.Embeddable'
+    }
+
+    tasks.named('test') {
+        useJUnitPlatform()
+    }
+}
+
+task buildAll {
+    dependsOn ':main-server:build', ':pos-server:build'
+    description 'Build all servers'
+    group 'build'
+}
+
+task runMainServer(type: Exec) {
+    dependsOn ':main-server:build'
+    commandLine './gradlew', ':main-server:bootRun'
+    description 'Run main server'
+    group 'application'
+}
+
+task runPosServer(type: Exec) {
+    dependsOn ':pos-server:build'
+    commandLine './gradlew', ':pos-server:bootRun'
+    description 'Run POS server'
+    group 'application'
+}
+
+task testAll {
+    dependsOn ':main-server:test', ':pos-server:test'
+    description 'Run tests for all servers'
+    group 'verification'
+}
+
+task cleanAll {
+    dependsOn ':main-server:clean', ':pos-server:clean'
+    description 'Clean all servers'
+    group 'build'
+}

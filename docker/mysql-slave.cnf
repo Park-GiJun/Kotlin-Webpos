@@ -1,0 +1,11 @@
+[mysqld]
+server-id=2
+relay-log=relay-bin
+log-bin=mysql-bin
+binlog-format=ROW
+read_only=1
+max_connections=1000
+innodb_buffer_pool_size=2G
+innodb_log_file_size=256M
+query_cache_size=128M
+query_cache_type=1

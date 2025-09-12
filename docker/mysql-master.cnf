@@ -1,0 +1,10 @@
+[mysqld]
+server-id=1
+log-bin=mysql-bin
+binlog-format=ROW
+binlog-do-db=main_server
+max_connections=500
+innodb_buffer_pool_size=1G
+innodb_log_file_size=256M
+innodb_flush_log_at_trx_commit=1
+sync_binlog=1
