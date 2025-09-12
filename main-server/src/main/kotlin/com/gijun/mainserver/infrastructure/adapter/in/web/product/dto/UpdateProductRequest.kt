@@ -1,0 +1,12 @@
+package com.gijun.mainserver.infrastructure.adapter.`in`.web.product.dto
+
+import java.math.BigDecimal
+
+data class UpdateProductRequest(
+    val name: String,
+    val price: BigDecimal,
+    val productCode: String?,
+    val supplyAmt: BigDecimal,
+    val unit: String,
+    val usageUnit: String
+)

@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: main-server
+
+  profiles:
+    active: cqrs-simple
+
+server:
+  port: 8080
+  servlet:
+    context-path: /main

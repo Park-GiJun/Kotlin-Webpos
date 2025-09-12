@@ -1,0 +1,97 @@
+spring:
+  # Master/Slave DataSource Configuration
+  datasource:
+    # Primary datasource config (for compatibility)
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/main_server?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+    username: mainuser
+    password: mainpassword
+    
+    # Write (Command) Database - Master
+    write:
+      jdbc-url: jdbc:mysql://localhost:3306/main_server?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      username: mainuser
+      password: mainpassword
+      hikari:
+        pool-name: WriteHikariPool
+        minimum-idle: 5
+        maximum-pool-size: 15
+        connection-timeout: 20000
+    
+    # Read (Query) Database - Slave
+    read:
+      jdbc-url: jdbc:mysql://localhost:3307/main_server?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      username: readonly_user
+      password: readonly_password
+      hikari:
+        pool-name: ReadHikariPool
+        minimum-idle: 10
+        maximum-pool-size: 30
+        connection-timeout: 10000
+        read-only: true
+
+  jpa:
+    hibernate:
+      ddl-auto: none  # Don't auto-create tables in production
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+        show_sql: false  # Set to false in production
+    open-in-view: false
+
+  # Redis configuration with Redisson
+  redis:
+    host: localhost
+    port: 6379
+    timeout: 2000ms
+
+  # Cache configuration
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000  # 10 minutes
+      cache-null-values: false
+      enable-statistics: true
+
+  # Kafka for event streaming
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+    consumer:
+      group-id: main-server-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
+      properties:
+        spring.json.trusted.packages: "com.gijun.mainserver"
+
+# Redisson configuration
+redisson:
+  config: |
+    singleServerConfig:
+      address: "redis://localhost:6379"
+      connectionPoolSize: 10
+      connectionMinimumIdleSize: 5
+      timeout: 3000
+      retryAttempts: 3
+      retryInterval: 1500
+
+# Event Store for CQRS synchronization
+event-store:
+  type: kafka
+  kafka:
+    topics:
+      domain-events: main-server-domain-events
+      projection-updates: main-server-projections
+
+logging:
+  level:
+    com.gijun.mainserver: DEBUG
+    org.springframework.transaction: DEBUG  # To see which DB is being used
