@@ -1,8 +1,8 @@
 package com.gijun.mainserver.application.mapper
 
-import com.gijun.mainserver.application.dto.command.store.CreateStoreCommand
-import com.gijun.mainserver.application.dto.result.store.CreateStoreResult
-import com.gijun.mainserver.application.dto.result.store.StoreResult
+import com.gijun.mainserver.application.dto.command.organization.store.CreateStoreCommand
+import com.gijun.mainserver.application.dto.result.organization.store.CreateStoreResult
+import com.gijun.mainserver.application.dto.result.organization.store.StoreResult
 import com.gijun.mainserver.domain.common.exception.NullIdException
 import com.gijun.mainserver.domain.common.vo.Address
 import com.gijun.mainserver.domain.common.vo.Email

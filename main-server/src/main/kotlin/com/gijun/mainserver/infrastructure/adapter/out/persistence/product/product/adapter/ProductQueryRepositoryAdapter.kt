@@ -1,6 +1,6 @@
 package com.gijun.mainserver.infrastructure.adapter.out.persistence.product.product.adapter
 
-import com.gijun.mainserver.application.port.out.product.ProductQueryRepository
+import com.gijun.mainserver.application.port.out.product.product.ProductQueryRepository
 import com.gijun.mainserver.domain.product.product.model.Product
 import com.gijun.mainserver.infrastructure.adapter.out.persistence.product.product.mapper.ProductPersistenceMapper
 import com.gijun.mainserver.infrastructure.adapter.out.persistence.product.product.repository.ProductJpaRepository

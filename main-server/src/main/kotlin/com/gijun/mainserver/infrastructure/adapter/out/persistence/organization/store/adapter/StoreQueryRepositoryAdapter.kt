@@ -1,6 +1,6 @@
 package com.gijun.mainserver.infrastructure.adapter.out.persistence.organization.store.adapter
 
-import com.gijun.mainserver.application.dto.result.store.StoreResult
+import com.gijun.mainserver.application.dto.result.organization.store.StoreResult
 import com.gijun.mainserver.application.port.out.organization.store.StoreQueryRepository
 import com.gijun.mainserver.domain.organization.store.model.Store
 import com.gijun.mainserver.infrastructure.adapter.out.persistence.organization.store.mapper.StorePersistenceMapper

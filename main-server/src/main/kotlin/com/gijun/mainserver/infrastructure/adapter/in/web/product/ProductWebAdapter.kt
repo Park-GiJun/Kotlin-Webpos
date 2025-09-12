@@ -1,9 +1,9 @@
 package com.gijun.mainserver.infrastructure.adapter.`in`.web.product
 
-import com.gijun.mainserver.application.dto.command.product.DeleteProductCommand
-import com.gijun.mainserver.application.dto.query.product.GetAllProductQuery
-import com.gijun.mainserver.application.dto.query.product.GetProductByIdQuery
-import com.gijun.mainserver.application.dto.query.product.GetProductsByHqIdQuery
+import com.gijun.mainserver.application.dto.command.product.product.DeleteProductCommand
+import com.gijun.mainserver.application.dto.query.product.product.GetAllProductQuery
+import com.gijun.mainserver.application.dto.query.product.product.GetProductByIdQuery
+import com.gijun.mainserver.application.dto.query.product.product.GetProductsByHqIdQuery
 import com.gijun.mainserver.application.port.`in`.product.CreateProductUseCase
 import com.gijun.mainserver.application.port.`in`.product.DeleteProductUseCase
 import com.gijun.mainserver.application.port.`in`.product.GetProductUseCase

@@ -1,6 +1,6 @@
 package com.gijun.mainserver.infrastructure.adapter.out.persistence.organization.store.mapper
 
-import com.gijun.mainserver.application.dto.result.store.StoreResult
+import com.gijun.mainserver.application.dto.result.organization.store.StoreResult
 import com.gijun.mainserver.domain.common.vo.Address
 import com.gijun.mainserver.domain.common.vo.Email
 import com.gijun.mainserver.domain.common.vo.PhoneNumber

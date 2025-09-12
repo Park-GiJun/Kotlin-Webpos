@@ -1,9 +1,9 @@
 package com.gijun.mainserver.application.port.`in`.organziation.store
 
-import com.gijun.mainserver.application.dto.query.store.GetAllStoreQuery
-import com.gijun.mainserver.application.dto.query.store.GetStoreByIdQuery
-import com.gijun.mainserver.application.dto.query.store.GetStoresByHqIdQuery
-import com.gijun.mainserver.application.dto.result.store.StoreResult
+import com.gijun.mainserver.application.dto.query.organization.store.GetAllStoreQuery
+import com.gijun.mainserver.application.dto.query.organization.store.GetStoreByIdQuery
+import com.gijun.mainserver.application.dto.query.organization.store.GetStoresByHqIdQuery
+import com.gijun.mainserver.application.dto.result.organization.store.StoreResult
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 

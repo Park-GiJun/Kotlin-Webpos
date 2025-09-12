@@ -1,6 +1,6 @@
 package com.gijun.mainserver.infrastructure.adapter.out.persistence.organization.pos.mapper
 
-import com.gijun.mainserver.application.dto.result.pos.PosResult
+import com.gijun.mainserver.application.dto.result.organization.pos.PosResult
 import com.gijun.mainserver.domain.organization.pos.model.Pos
 import com.gijun.mainserver.domain.organization.pos.vo.PosStatus
 import com.gijun.mainserver.infrastructure.adapter.out.persistence.organization.pos.entity.PosJpaEntity

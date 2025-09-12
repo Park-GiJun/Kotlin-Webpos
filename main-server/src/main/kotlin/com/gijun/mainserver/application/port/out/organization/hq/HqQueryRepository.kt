@@ -6,12 +6,10 @@ import org.springframework.data.domain.Pageable
 import java.util.UUID
 
 interface HqQueryRepository {
-    fun findById(hqId: UUID): Hq?
     fun findById(hqId: Long): Hq?
     fun findAllActive(): List<Hq>
     fun findAll(pageable: Pageable): Page<Hq>
     fun existsByName(name: String): Boolean
-    fun existsById(hqId: UUID): Boolean
     fun existsById(hqId: Long): Boolean
     fun findByNameContaining(keyword: String): List<Hq>
 }

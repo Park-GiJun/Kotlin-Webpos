@@ -1,11 +1,11 @@
 package com.gijun.mainserver.application.mapper
 
-import com.gijun.mainserver.application.dto.command.product.CreateProductCommand
-import com.gijun.mainserver.application.dto.command.product.UpdateProductCommand
-import com.gijun.mainserver.application.dto.result.product.CreateProductResult
-import com.gijun.mainserver.application.dto.result.product.DeleteProductResult
-import com.gijun.mainserver.application.dto.result.product.ProductResult
-import com.gijun.mainserver.application.dto.result.product.UpdateProductResult
+import com.gijun.mainserver.application.dto.command.product.product.CreateProductCommand
+import com.gijun.mainserver.application.dto.command.product.product.UpdateProductCommand
+import com.gijun.mainserver.application.dto.result.product.product.CreateProductResult
+import com.gijun.mainserver.application.dto.result.product.product.DeleteProductResult
+import com.gijun.mainserver.application.dto.result.product.product.ProductResult
+import com.gijun.mainserver.application.dto.result.product.product.UpdateProductResult
 import com.gijun.mainserver.domain.product.product.model.Product
 
 object ProductApplicationMapper {

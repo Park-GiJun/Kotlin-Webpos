@@ -1,6 +1,6 @@
 package com.gijun.mainserver.application.port.out.organization.pos
 
-import com.gijun.mainserver.application.dto.result.pos.PosResult
+import com.gijun.mainserver.application.dto.result.organization.pos.PosResult
 import com.gijun.mainserver.domain.organization.pos.model.Pos
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable

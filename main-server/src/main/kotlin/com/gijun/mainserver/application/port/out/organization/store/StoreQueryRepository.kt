@@ -1,6 +1,6 @@
 package com.gijun.mainserver.application.port.out.organization.store
 
-import com.gijun.mainserver.application.dto.result.store.StoreResult
+import com.gijun.mainserver.application.dto.result.organization.store.StoreResult
 import com.gijun.mainserver.domain.organization.store.model.Store
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable

@@ -1,6 +1,6 @@
 package com.gijun.mainserver.infrastructure.adapter.out.persistence.organization.pos.adapter
 
-import com.gijun.mainserver.application.dto.result.pos.PosResult
+import com.gijun.mainserver.application.dto.result.organization.pos.PosResult
 import com.gijun.mainserver.application.port.out.organization.pos.PosQueryRepository
 import com.gijun.mainserver.domain.organization.pos.model.Pos
 import com.gijun.mainserver.infrastructure.adapter.out.persistence.organization.pos.mapper.PosPersistenceMapper

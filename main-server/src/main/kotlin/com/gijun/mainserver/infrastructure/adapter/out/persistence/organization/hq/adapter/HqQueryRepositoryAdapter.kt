@@ -48,20 +48,8 @@ class HqQueryRepositoryAdapter(
     }
 
     @Transactional(readOnly = true)
-    override fun findById(hqId: UUID): Hq? {
-        // TODO: Implement UUID support when domain model is updated
-        return null
-    }
-
-    @Transactional(readOnly = true)
     override fun findAll(pageable: Pageable): Page<Hq> {
         return hqJpaRepository.findByIsDeletedFalse(pageable)
             .map { HqPersistenceMapper.toDomain(it) }
-    }
-
-    @Transactional(readOnly = true)
-    override fun existsById(hqId: UUID): Boolean {
-        // TODO: Implement UUID support when domain model is updated
-        return false
     }
 }

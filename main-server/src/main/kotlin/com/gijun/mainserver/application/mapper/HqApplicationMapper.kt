@@ -1,15 +1,16 @@
 package com.gijun.mainserver.application.mapper
 
-import com.gijun.mainserver.application.dto.command.hq.CreateHqCommand
-import com.gijun.mainserver.application.dto.command.hq.UpdateHqCommand
-import com.gijun.mainserver.application.dto.result.hq.CreateHqResult
-import com.gijun.mainserver.application.dto.result.hq.HqResult
-import com.gijun.mainserver.application.dto.result.hq.UpdateHqResult
+import com.gijun.mainserver.application.dto.command.organization.hq.CreateHqCommand
+import com.gijun.mainserver.application.dto.command.organization.hq.UpdateHqCommand
+import com.gijun.mainserver.application.dto.result.organization.hq.CreateHqResult
+import com.gijun.mainserver.application.dto.result.organization.hq.HqResult
+import com.gijun.mainserver.application.dto.result.organization.hq.UpdateHqResult
 import com.gijun.mainserver.domain.common.exception.NullIdException
 import com.gijun.mainserver.domain.common.vo.Address
 import com.gijun.mainserver.domain.common.vo.Email
 import com.gijun.mainserver.domain.common.vo.PhoneNumber
 import com.gijun.mainserver.domain.organization.hq.model.Hq
+import java.time.Instant
 import java.util.UUID
 
 object HqApplicationMapper {
@@ -78,8 +79,8 @@ object HqApplicationMapper {
             zipCode = domain.address.zipCode,
             email = domain.email.value,
             phoneNumber = domain.phoneNumber.value,
-            createdAt = java.time.Instant.now(), // TODO: Remove - should come from entity
-            updatedAt = java.time.Instant.now()  // TODO: Remove - should come from entity
+            createdAt = Instant.now(), // TODO: Remove - should come from entity
+            updatedAt = Instant.now()  // TODO: Remove - should come from entity
         )
     }
 }

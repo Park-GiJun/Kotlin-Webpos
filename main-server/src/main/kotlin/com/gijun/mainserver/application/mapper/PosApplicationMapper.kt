@@ -1,8 +1,8 @@
 package com.gijun.mainserver.application.mapper
 
-import com.gijun.mainserver.application.dto.command.pos.CreatePosCommand
-import com.gijun.mainserver.application.dto.result.pos.CreatePosResult
-import com.gijun.mainserver.application.dto.result.pos.PosResult
+import com.gijun.mainserver.application.dto.command.organization.pos.CreatePosCommand
+import com.gijun.mainserver.application.dto.result.organization.pos.CreatePosResult
+import com.gijun.mainserver.application.dto.result.organization.pos.PosResult
 import com.gijun.mainserver.domain.common.exception.NullIdException
 import com.gijun.mainserver.domain.organization.pos.model.Pos
 import com.gijun.mainserver.domain.organization.pos.vo.PosStatus
