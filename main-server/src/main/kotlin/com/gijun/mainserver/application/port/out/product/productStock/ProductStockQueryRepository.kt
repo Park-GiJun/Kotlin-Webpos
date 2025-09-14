@@ -7,6 +7,6 @@ interface ProductStockQueryRepository {
     fun findById(id: Long): ProductStock?
     fun findByHqId(hqId: Long): List<ProductStock>
     fun findByStoreId(storeId: Long): List<ProductStock>
+    fun findByProductIdAndStoreId(productId: Long, storeId: Long): ProductStock?
     fun existsById(id: Long): Boolean
-
 }

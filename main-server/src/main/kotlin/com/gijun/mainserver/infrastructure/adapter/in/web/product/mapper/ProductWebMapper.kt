@@ -2,11 +2,13 @@ package com.gijun.mainserver.infrastructure.adapter.`in`.web.product.mapper
 
 import com.gijun.mainserver.application.dto.command.product.product.CreateProductCommand
 import com.gijun.mainserver.application.dto.command.product.product.UpdateProductCommand
+import com.gijun.mainserver.application.dto.command.product.productStock.CreateProductStockCommand
 import com.gijun.mainserver.application.dto.result.product.product.CreateProductResult
 import com.gijun.mainserver.application.dto.result.product.product.ProductResult
 import com.gijun.mainserver.application.dto.result.product.product.UpdateProductResult
 import com.gijun.mainserver.domain.common.vo.Money
 import com.gijun.mainserver.domain.common.vo.ProductCode
+import com.gijun.mainserver.domain.common.vo.Quantity
 import com.gijun.mainserver.infrastructure.adapter.`in`.web.product.dto.*
 
 object ProductWebMapper {
@@ -19,7 +21,16 @@ object ProductWebMapper {
             productCode = request.productCode?.let { ProductCode(it) },
             supplyAmt = request.supplyAmt,
             unit = request.unit,
-            usageUnit = request.usageUnit
+            usageUnit = request.usageUnit,
+            initialStock = request.initialStock?.let { stock ->
+                CreateProductStockCommand(
+                    productId = 0L, // Will be set after product creation
+                    hqId = request.hqId,
+                    storeId = stock.storeId,
+                    unitQty = Quantity(stock.unitQty),
+                    usageQty = Quantity(stock.usageQty)
+                )
+            }
         )
     }
 
