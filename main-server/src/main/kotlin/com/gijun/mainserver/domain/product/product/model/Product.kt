@@ -9,6 +9,7 @@ data class Product(
     val hqId: Long?,
     val name: String,
     val price: Money,
+    val productType: ProductType,
     val productCode: ProductCode?,
     val supplyAmt: BigDecimal,
     val unit: String,
