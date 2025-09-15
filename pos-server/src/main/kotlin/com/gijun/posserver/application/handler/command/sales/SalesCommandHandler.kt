@@ -6,6 +6,8 @@ import com.gijun.posserver.application.dto.result.sales.SalesResult
 import com.gijun.posserver.application.mapper.SalesApplicationMapper
 import com.gijun.posserver.application.port.out.sales.SalesCommandRepository
 import com.gijun.posserver.application.port.out.sales.SalesQueryRepository
+import com.gijun.posserver.domain.common.exception.DuplicateEntityException
+import com.gijun.posserver.domain.common.exception.EntityNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -19,7 +21,7 @@ class SalesCommandHandler(
     fun createSales(command: CreateSalesCommand): SalesResult {
         // Check if bill number already exists
         if (salesQueryRepository.existsByBillNo(command.billNo)) {
-            throw IllegalArgumentException("Bill number ${command.billNo} already exists")
+            throw DuplicateEntityException("Sales", command.billNo)
         }
 
         // Convert command to domain object
@@ -35,7 +37,7 @@ class SalesCommandHandler(
     fun updateSales(command: UpdateSalesCommand): SalesResult {
         // Check if sales exists
         val existingSales = salesQueryRepository.findById(command.id)
-            ?: throw IllegalArgumentException("Sales with ID ${command.id} not found")
+            ?: throw EntityNotFoundException("Sales", command.id)
 
         // Convert command to domain object
         val updatedSales = existingSales.copy(
@@ -67,7 +69,7 @@ class SalesCommandHandler(
     fun deleteSales(id: Long) {
         // Check if sales exists
         if (!salesQueryRepository.existsById(id)) {
-            throw IllegalArgumentException("Sales with ID $id not found")
+            throw EntityNotFoundException("Sales", id)
         }
 
         // Delete sales
@@ -77,7 +79,7 @@ class SalesCommandHandler(
     fun deleteSalesByBillNo(billNo: String) {
         // Check if sales exists
         if (!salesQueryRepository.existsByBillNo(billNo)) {
-            throw IllegalArgumentException("Sales with bill number $billNo not found")
+            throw EntityNotFoundException("Sales", billNo)
         }
 
         // Delete sales
