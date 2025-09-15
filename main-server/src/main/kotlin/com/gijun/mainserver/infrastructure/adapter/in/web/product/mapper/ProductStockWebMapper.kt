@@ -3,7 +3,6 @@ package com.gijun.mainserver.infrastructure.adapter.`in`.web.product.mapper
 import com.gijun.mainserver.application.dto.command.product.productStock.AdjustProductStockCommand
 import com.gijun.mainserver.application.dto.command.product.productStock.StockAdjustmentType
 import com.gijun.mainserver.application.dto.result.product.productStock.AdjustProductStockResult
-import com.gijun.mainserver.domain.common.vo.Quantity
 import com.gijun.mainserver.infrastructure.adapter.`in`.web.product.dto.AdjustProductStockRequest
 import com.gijun.mainserver.infrastructure.adapter.`in`.web.product.dto.AdjustProductStockResponse
 
@@ -18,8 +17,8 @@ object ProductStockWebMapper {
             productId = productId,
             storeId = storeId,
             adjustmentType = StockAdjustmentType.valueOf(request.adjustmentType),
-            unitQty = Quantity(request.unitQty),
-            usageQty = Quantity(request.usageQty),
+            unitQty = request.unitQty,
+            usageQty = request.usageQty,
             reason = request.reason
         )
     }
@@ -29,10 +28,10 @@ object ProductStockWebMapper {
             productStockId = result.productStockId,
             productId = result.productId,
             storeId = result.storeId,
-            unitQtyBefore = result.unitQtyBefore.value,
-            usageQtyBefore = result.usageQtyBefore.value,
-            unitQtyAfter = result.unitQtyAfter.value,
-            usageQtyAfter = result.usageQtyAfter.value
+            unitQtyBefore = result.unitQtyBefore,
+            usageQtyBefore = result.usageQtyBefore,
+            unitQtyAfter = result.unitQtyAfter,
+            usageQtyAfter = result.usageQtyAfter
         )
     }
 }

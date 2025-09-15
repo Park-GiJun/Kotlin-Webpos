@@ -5,7 +5,7 @@ import com.gijun.mainserver.application.port.out.organization.store.StoreQueryRe
 import com.gijun.mainserver.domain.organization.store.model.Store
 import com.gijun.mainserver.infrastructure.adapter.out.persistence.organization.store.mapper.StorePersistenceMapper
 import com.gijun.mainserver.infrastructure.adapter.out.persistence.organization.store.repository.StoreJpaRepository
-import com.gijun.mainserver.infrastructure.config.ReadOnlyTransaction
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
@@ -16,7 +16,7 @@ class StoreQueryRepositoryAdapter(
 ) : StoreQueryRepository {
 
     // Domain methods (for Command handlers)
-    @ReadOnlyTransaction
+    @Transactional(readOnly = true)
     override fun findById(storeId: Long): Store? {
         return storeJpaRepository.findById(storeId)
             .filter { !it.isDeleted }
@@ -24,38 +24,38 @@ class StoreQueryRepositoryAdapter(
             .orElse(null)
     }
 
-    @ReadOnlyTransaction
+    @Transactional(readOnly = true)
     override fun findByHqId(hqId: Long): List<Store> {
         return storeJpaRepository.findByHqIdAndIsDeletedFalse(hqId)
             .map { StorePersistenceMapper.toDomain(it) }
     }
 
-    @ReadOnlyTransaction
+    @Transactional(readOnly = true)
     override fun findAllActive(): List<Store> {
         return storeJpaRepository.findByIsDeletedFalse()
             .map { StorePersistenceMapper.toDomain(it) }
     }
 
-    @ReadOnlyTransaction
+    @Transactional(readOnly = true)
     override fun existsByName(name: String): Boolean {
         return storeJpaRepository.existsByNameAndIsDeletedFalse(name)
     }
 
-    @ReadOnlyTransaction
+    @Transactional(readOnly = true)
     override fun existsById(storeId: Long): Boolean {
         return storeJpaRepository.findById(storeId)
             .filter { !it.isDeleted }
             .isPresent
     }
 
-    @ReadOnlyTransaction
+    @Transactional(readOnly = true)
     override fun findByNameContaining(keyword: String): List<Store> {
         return storeJpaRepository.findByNameContainingAndIsDeletedFalse(keyword)
             .map { StorePersistenceMapper.toDomain(it) }
     }
 
     // Result DTO methods (for Query handlers) - includes audit data from entities
-    @ReadOnlyTransaction
+    @Transactional(readOnly = true)
     override fun findStoreResultById(storeId: Long): StoreResult? {
         return storeJpaRepository.findById(storeId)
             .filter { !it.isDeleted }
@@ -63,25 +63,25 @@ class StoreQueryRepositoryAdapter(
             .orElse(null)
     }
 
-    @ReadOnlyTransaction
+    @Transactional(readOnly = true)
     override fun findStoreResultsByHqId(hqId: Long): List<StoreResult> {
         return storeJpaRepository.findByHqIdAndIsDeletedFalse(hqId)
             .map { StorePersistenceMapper.toStoreResult(it) }
     }
 
-    @ReadOnlyTransaction
+    @Transactional(readOnly = true)
     override fun findStoreResultsByHqId(hqId: Long, pageable: Pageable): Page<StoreResult> {
         return storeJpaRepository.findByHqIdAndIsDeletedFalse(hqId, pageable)
             .map { StorePersistenceMapper.toStoreResult(it) }
     }
 
-    @ReadOnlyTransaction
+    @Transactional(readOnly = true)
     override fun findAllStoreResults(pageable: Pageable): Page<StoreResult> {
         return storeJpaRepository.findByIsDeletedFalse(pageable)
             .map { StorePersistenceMapper.toStoreResult(it) }
     }
 
-    @ReadOnlyTransaction
+    @Transactional(readOnly = true)
     override fun findStoreResultsByNameContaining(keyword: String): List<StoreResult> {
         return storeJpaRepository.findByNameContainingAndIsDeletedFalse(keyword)
             .map { StorePersistenceMapper.toStoreResult(it) }

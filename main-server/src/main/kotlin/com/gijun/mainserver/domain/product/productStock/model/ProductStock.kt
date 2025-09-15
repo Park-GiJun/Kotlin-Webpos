@@ -1,6 +1,5 @@
 package com.gijun.mainserver.domain.product.productStock.model
 
-import com.gijun.mainserver.domain.common.vo.Quantity
 import java.math.BigDecimal
 
 data class ProductStock(
@@ -8,30 +7,30 @@ data class ProductStock(
     val productId: Long,
     val hqId: Long,
     val storeId: Long,
-    val unitQty: Quantity,
-    val usageQty: Quantity
+    val unitQty: BigDecimal,
+    val usageQty: BigDecimal
 ) {
-    fun increase(unitQtyToAdd: Quantity, usageQtyToAdd: Quantity): ProductStock {
+    fun increase(unitQtyToAdd: BigDecimal, usageQtyToAdd: BigDecimal): ProductStock {
         return this.copy(
-            unitQty = Quantity(this.unitQty.value + unitQtyToAdd.value),
-            usageQty = Quantity(this.usageQty.value + usageQtyToAdd.value)
+            unitQty = this.unitQty + unitQtyToAdd,
+            usageQty = this.usageQty + usageQtyToAdd
         )
     }
 
-    fun decrease(unitQtyToSubtract: Quantity, usageQtyToSubtract: Quantity): ProductStock {
-        val newUnitQty = this.unitQty.value - unitQtyToSubtract.value
-        val newUsageQty = this.usageQty.value - usageQtyToSubtract.value
+    fun decrease(unitQtyToSubtract: BigDecimal, usageQtyToSubtract: BigDecimal): ProductStock {
+        val newUnitQty = this.unitQty - unitQtyToSubtract
+        val newUsageQty = this.usageQty - usageQtyToSubtract
 
         require(newUnitQty >= BigDecimal.ZERO) {
-            "단위 재고가 부족합니다. 현재: ${this.unitQty.value}, 요청: ${unitQtyToSubtract.value}"
+            "단위 재고가 부족합니다. 현재: ${this.unitQty}, 요청: $unitQtyToSubtract"
         }
         require(newUsageQty >= BigDecimal.ZERO) {
-            "사용 재고가 부족합니다. 현재: ${this.usageQty.value}, 요청: ${usageQtyToSubtract.value}"
+            "사용 재고가 부족합니다. 현재: ${this.usageQty}, 요청: $usageQtyToSubtract"
         }
 
         return this.copy(
-            unitQty = Quantity(newUnitQty),
-            usageQty = Quantity(newUsageQty)
+            unitQty = newUnitQty,
+            usageQty = newUsageQty
         )
     }
 }

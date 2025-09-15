@@ -1,14 +1,18 @@
 package com.gijun.mainserver.domain.organization.hq.model
 
-import com.gijun.mainserver.domain.common.vo.Address
-import com.gijun.mainserver.domain.common.vo.Email
-import com.gijun.mainserver.domain.common.vo.PhoneNumber
-
 data class Hq(
     val id: Long?,
     val name: String,
     val representative: String,
-    val address: Address,
-    val email: Email,
-    val phoneNumber: PhoneNumber
-)
+    val address: String,
+    val email: String,
+    val phoneNumber: String
+) {
+    init {
+        require(name.isNotBlank()) { "HQ name cannot be blank" }
+        require(representative.isNotBlank()) { "Representative cannot be blank" }
+        require(address.isNotBlank()) { "Address cannot be blank" }
+        require(email.isNotBlank()) { "Email cannot be blank" }
+        require(phoneNumber.isNotBlank()) { "Phone number cannot be blank" }
+    }
+}

@@ -60,6 +60,7 @@ object ProductApplicationMapper {
             hqId = null,
             name = command.name,
             price = command.price,
+            productType = command.productType,
             productCode = command.productCode,
             supplyAmt = command.supplyAmt,
             unit = command.unit,

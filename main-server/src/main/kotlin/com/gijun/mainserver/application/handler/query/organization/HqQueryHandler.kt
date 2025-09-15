@@ -6,6 +6,7 @@ import com.gijun.mainserver.application.dto.result.organization.hq.HqResult
 import com.gijun.mainserver.application.mapper.HqApplicationMapper
 import com.gijun.mainserver.application.port.`in`.organziation.hq.GetHqUseCase
 import com.gijun.mainserver.application.port.out.organization.hq.HqQueryRepository
+import com.gijun.mainserver.domain.common.exception.EntityNotFoundException
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -22,7 +23,7 @@ class HqQueryHandler(
     override fun getHqById(query: GetHqByIdQuery): HqResult {
         return hqQueryRepository.findById(query.hqId)
             ?.let { HqApplicationMapper.toHqResultFromDomain(it) }
-            ?: throw NoSuchElementException("HQ not found with id: ${query.hqId}")
+            ?: throw EntityNotFoundException("HQ", query.hqId)
     }
 
     @Transactional(readOnly = true)

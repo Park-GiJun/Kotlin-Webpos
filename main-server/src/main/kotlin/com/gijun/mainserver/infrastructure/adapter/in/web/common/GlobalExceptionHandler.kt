@@ -1,6 +1,6 @@
 package com.gijun.mainserver.infrastructure.adapter.`in`.web.common
 
-import com.gijun.mainserver.domain.common.exception.NullIdException
+import com.gijun.mainserver.domain.common.exception.*
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -14,17 +14,17 @@ import java.time.LocalDateTime
 @RestControllerAdvice
 class GlobalExceptionHandler {
 
-    @ExceptionHandler(DuplicateKeyException::class)
-    fun handleDuplicateKeyException(
-        ex: DuplicateKeyException,
+    @ExceptionHandler(DuplicateEntityException::class)
+    fun handleDuplicateEntityException(
+        ex: DuplicateEntityException,
         request: WebRequest
     ): ResponseEntity<ApiResponse<Nothing>> {
         return ResponseEntity
             .status(HttpStatus.CONFLICT)
             .body(
                 ApiResponse.error(
-                    code = "DUPLICATE_KEY",
-                    message = ex.message ?: "Duplicate key error occurred"
+                    code = "DUPLICATE_ENTITY",
+                    message = ex.message
                 )
             )
     }
@@ -44,9 +44,9 @@ class GlobalExceptionHandler {
             )
     }
 
-    @ExceptionHandler(IllegalArgumentException::class)
-    fun handleIllegalArgumentException(
-        ex: IllegalArgumentException,
+    @ExceptionHandler(InvalidArgumentException::class)
+    fun handleInvalidArgumentException(
+        ex: InvalidArgumentException,
         request: WebRequest
     ): ResponseEntity<ApiResponse<Nothing>> {
         return ResponseEntity
@@ -54,7 +54,22 @@ class GlobalExceptionHandler {
             .body(
                 ApiResponse.error(
                     code = "INVALID_ARGUMENT",
-                    message = ex.message ?: "Invalid argument provided"
+                    message = ex.message
+                )
+            )
+    }
+
+    @ExceptionHandler(ValidationException::class)
+    fun handleValidationException(
+        ex: ValidationException,
+        request: WebRequest
+    ): ResponseEntity<ApiResponse<Nothing>> {
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(
+                ApiResponse.error(
+                    code = "VALIDATION_ERROR",
+                    message = ex.message
                 )
             )
     }
@@ -82,17 +97,17 @@ class GlobalExceptionHandler {
             ))
     }
 
-    @ExceptionHandler(NoSuchElementException::class)
-    fun handleNoSuchElementException(
-        ex: NoSuchElementException,
+    @ExceptionHandler(EntityNotFoundException::class)
+    fun handleEntityNotFoundException(
+        ex: EntityNotFoundException,
         request: WebRequest
     ): ResponseEntity<ApiResponse<Nothing>> {
         return ResponseEntity
             .status(HttpStatus.NOT_FOUND)
             .body(
                 ApiResponse.error(
-                    code = "NOT_FOUND",
-                    message = ex.message ?: "Resource not found"
+                    code = "ENTITY_NOT_FOUND",
+                    message = ex.message
                 )
             )
     }

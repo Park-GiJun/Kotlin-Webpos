@@ -1,6 +1,5 @@
 package com.gijun.mainserver.infrastructure.adapter.out.persistence.product.productStock.mapper
 
-import com.gijun.mainserver.domain.common.vo.Quantity
 import com.gijun.mainserver.domain.product.productStock.model.ProductStock
 import com.gijun.mainserver.infrastructure.adapter.out.persistence.product.productStock.entity.ProductStockJpaEntity
 
@@ -12,8 +11,8 @@ object ProductStockPersistenceMapper {
             productId = domain.productId,
             hqId = domain.hqId,
             storeId = domain.storeId,
-            unitQty = domain.unitQty.value,
-            usageQty = domain.usageQty.value
+            unitQty = domain.unitQty,
+            usageQty = domain.usageQty
         )
     }
 
@@ -23,8 +22,8 @@ object ProductStockPersistenceMapper {
             productId = entity.productId,
             hqId = entity.hqId,
             storeId = entity.storeId,
-            unitQty = Quantity(entity.unitQty),
-            usageQty = Quantity(entity.usageQty)
+            unitQty = entity.unitQty,
+            usageQty = entity.usageQty
         )
     }
 }

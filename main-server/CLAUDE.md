@@ -103,6 +103,58 @@ All endpoints follow: `/main/[domain]/[resource]`
 4. **Events**: Domain events for inter-aggregate communication
 5. **Testing**: Test files mirror source structure, use Spring Boot Test
 
+## Coding Principles (MANDATORY)
+
+### 1. Single Class Per File Rule
+- **RULE**: One file must contain exactly one class, interface, enum, or object
+- **VIOLATION**: Having multiple classes in a single file is strictly prohibited
+- **EXAMPLES**:
+  - ✅ `AdjustProductStockCommand.kt` contains only `AdjustProductStockCommand` class
+  - ✅ `StockAdjustmentType.kt` contains only `StockAdjustmentType` enum
+  - ❌ One file containing both `ApiResponse` and `ErrorDetail` classes
+
+### 2. Custom Domain Exceptions Only Rule
+- **RULE**: Use ONLY custom domain exceptions - NO basic Java/Kotlin exceptions allowed
+- **VIOLATION**: Using `IllegalArgumentException`, `NoSuchElementException`, etc. is strictly prohibited
+- **MANDATORY APPROACH**:
+  1. Define ALL exceptions in `domain.common.exception` package
+  2. All custom exceptions must extend `DomainException` base class
+  3. Business logic throws custom domain exceptions only
+  4. `GlobalExceptionHandler` catches custom exceptions and returns `ApiResponse.error()`
+- **AVAILABLE CUSTOM EXCEPTIONS**:
+  - `InvalidArgumentException` - for invalid input parameters
+  - `EntityNotFoundException` - for missing entities
+  - `DuplicateEntityException` - for duplicate entity creation
+  - `ValidationException` - for domain validation failures
+  - `NullIdException` - for null ID errors
+- **EXAMPLES**:
+  - ✅ `throw InvalidArgumentException("Invalid product ID")` (business logic)
+  - ✅ `throw EntityNotFoundException("Product", productId)` (not found)
+  - ✅ `throw ValidationException("Price cannot be negative")` (domain validation)
+  - ❌ `throw IllegalArgumentException("...")` (basic exception)
+  - ❌ `throw NoSuchElementException("...")` (basic exception)
+- **IMPLEMENTATION**:
+  - `GlobalExceptionHandler` handles: `InvalidArgumentException`, `EntityNotFoundException`, `DuplicateEntityException`, etc.
+  - All handlers return `ResponseEntity<ApiResponse<Nothing>>` with appropriate HTTP status
+  - Error codes: `INVALID_ARGUMENT`, `ENTITY_NOT_FOUND`, `DUPLICATE_ENTITY`, `VALIDATION_ERROR`, `INTERNAL_ERROR`
+
+### 3. No Value Objects (VOs) Rule
+- **RULE**: Value Objects (VOs) are strictly prohibited - use primitive types only
+- **VIOLATION**: Creating or using any Value Object classes is forbidden
+- **APPROACH**:
+  - Use `String` instead of `Email`, `PhoneNumber`, `Address` VOs
+  - Use `BigDecimal` instead of `Money`, `Quantity` VOs
+  - Use `Long` instead of ID VOs (HqId, StoreId, ProductId, etc.)
+  - Use `String` instead of `ProductCode` VOs
+  - Validate using domain model `init` blocks with `require()` statements
+- **EXAMPLES**:
+  - ✅ `val email: String` with validation in domain model
+  - ✅ `val price: BigDecimal` with `require(price >= BigDecimal.ZERO)`
+  - ✅ `val hqId: Long` instead of `HqId` VO
+  - ❌ `data class Email(val value: String)`
+  - ❌ `data class Money(val value: BigDecimal)`
+  - ❌ `data class ProductId(val value: Long)`
+
 ## Current Branch
 
 Working on: `main-server-application-layer` - implementing application layer with CQRS handlers and use cases.

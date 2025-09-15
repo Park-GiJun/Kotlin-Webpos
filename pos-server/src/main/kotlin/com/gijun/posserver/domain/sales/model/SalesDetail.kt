@@ -1,8 +1,7 @@
 package com.gijun.posserver.domain.sales.model
 
-import com.gijun.posserver.domain.common.vo.LineNo
-import com.gijun.posserver.domain.common.vo.Money
-import java.time.LocalDate
+import java.math.BigDecimal
+import java.time.LocalDateTime
 
 data class SalesDetail(
     val id: Long?,
@@ -10,47 +9,51 @@ data class SalesDetail(
     val hqId: Long,
     val storeId: Long,
     val posId: Long,
-    val lineNo: LineNo,
+    val lineNo: Int,
     val productId: Long,
-    val saleQty: Int,
+    val productCode: String,
+    val qty: BigDecimal,
+    val unitAmt: BigDecimal,
+    val saleQty: BigDecimal,
     val saleType: Boolean,
-    val saleDate: LocalDate,
-    val saleAmt: Money,
-    val payAmt: Money,
-    val dcAmt: Money,
-    val couponAmt: Money,
-    val cardAmt: Money,
-    val cashAmt: Money,
-    val voucherAmt: Money,
-    val promotionAmt: Money
+    val saleDate: LocalDateTime,
+    val saleAmt: BigDecimal,
+    val payAmt: BigDecimal,
+    val dcAmt: BigDecimal,
+    val couponAmt: BigDecimal,
+    val cardAmt: BigDecimal,
+    val cashAmt: BigDecimal,
+    val voucherAmt: BigDecimal,
+    val promotionAmt: BigDecimal
 ) {
     init {
-        require(saleAmt >= Money.ZERO) { "Sale amount cannot be negative" }
-        require(payAmt >= Money.ZERO) { "Pay amount cannot be negative" }
-        require(dcAmt >= Money.ZERO) { "Discount amount cannot be negative" }
-        require(couponAmt >= Money.ZERO) { "Coupon amount cannot be negative" }
-        require(cardAmt >= Money.ZERO) { "Card amount cannot be negative" }
-        require(cashAmt >= Money.ZERO) { "Cash amount cannot be negative" }
-        require(voucherAmt >= Money.ZERO) { "Voucher amount cannot be negative" }
-        require(promotionAmt >= Money.ZERO) { "Promotion amount cannot be negative" }
-        require(saleQty > 0) { "Sale quantity must be positive" }
+        require(saleAmt >= BigDecimal.ZERO) { "Sale amount cannot be negative" }
+        require(payAmt >= BigDecimal.ZERO) { "Pay amount cannot be negative" }
+        require(dcAmt >= BigDecimal.ZERO) { "Discount amount cannot be negative" }
+        require(couponAmt >= BigDecimal.ZERO) { "Coupon amount cannot be negative" }
+        require(cardAmt >= BigDecimal.ZERO) { "Card amount cannot be negative" }
+        require(cashAmt >= BigDecimal.ZERO) { "Cash amount cannot be negative" }
+        require(voucherAmt >= BigDecimal.ZERO) { "Voucher amount cannot be negative" }
+        require(promotionAmt >= BigDecimal.ZERO) { "Promotion amount cannot be negative" }
+        require(saleQty > BigDecimal.ZERO) { "Sale quantity must be positive" }
+        require(productCode.isNotBlank()) { "Product code cannot be blank" }
     }
 
-    fun getTotalDiscountAmount(): Money = dcAmt + couponAmt + promotionAmt
+    fun getTotalDiscountAmount(): BigDecimal = dcAmt + couponAmt + promotionAmt
 
-    fun getTotalPaymentAmount(): Money = cardAmt + cashAmt + voucherAmt
+    fun getTotalPaymentAmount(): BigDecimal = cardAmt + cashAmt + voucherAmt
 
-    fun getNetSaleAmount(): Money = saleAmt - getTotalDiscountAmount()
+    fun getNetSaleAmount(): BigDecimal = saleAmt - getTotalDiscountAmount()
 
     fun isValidLineItem(): Boolean {
-        return saleAmt.isPositive() &&
-               payAmt >= Money.ZERO &&
-               getNetSaleAmount() == payAmt &&
-               getTotalPaymentAmount() == payAmt
+        return saleAmt > BigDecimal.ZERO &&
+               payAmt >= BigDecimal.ZERO &&
+               getNetSaleAmount().compareTo(payAmt) == 0 &&
+               getTotalPaymentAmount().compareTo(payAmt) == 0
     }
 
-    fun applyDiscount(discountAmount: Money): SalesDetail {
-        require(discountAmount >= Money.ZERO) { "Discount amount cannot be negative" }
+    fun applyDiscount(discountAmount: BigDecimal): SalesDetail {
+        require(discountAmount >= BigDecimal.ZERO) { "Discount amount cannot be negative" }
         require(discountAmount <= saleAmt) { "Discount cannot exceed sale amount" }
 
         return this.copy(
@@ -59,5 +62,5 @@ data class SalesDetail(
         )
     }
 
-    fun getTotalProductAmount(): Money = saleAmt * saleQty
+    fun getTotalProductAmount(): BigDecimal = saleAmt * saleQty
 }

@@ -6,6 +6,7 @@ import com.gijun.mainserver.application.dto.result.product.productStock.AdjustPr
 import com.gijun.mainserver.application.port.`in`.product.AdjustProductStockUseCase
 import com.gijun.mainserver.application.port.out.product.productStock.ProductStockCommandRepository
 import com.gijun.mainserver.application.port.out.product.productStock.ProductStockQueryRepository
+import com.gijun.mainserver.domain.common.exception.EntityNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -20,9 +21,7 @@ class ProductStockCommandHandler(
         val productStock = productStockQueryRepository.findByProductIdAndStoreId(
             command.productId,
             command.storeId
-        ) ?: throw IllegalArgumentException(
-            "ProductStock not found for productId: ${command.productId}, storeId: ${command.storeId}"
-        )
+        ) ?: throw EntityNotFoundException("ProductStock", "productId: ${command.productId}, storeId: ${command.storeId}")
 
         val unitQtyBefore = productStock.unitQty
         val usageQtyBefore = productStock.usageQty

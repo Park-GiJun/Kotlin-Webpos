@@ -1,6 +1,6 @@
 package com.gijun.posserver.domain.sales.model
 
-import com.gijun.posserver.domain.common.vo.Money
+import java.math.BigDecimal
 import java.time.LocalDateTime
 
 data class SalesPayment(
@@ -10,15 +10,15 @@ data class SalesPayment(
     val storeId: Long,
     val posId: Long,
     val paymentMethodId: Long,
-    val payAmt: Money,
+    val payAmt: BigDecimal,
     val saleType: Boolean,
     val paymentDate: LocalDateTime = LocalDateTime.now(),
-    val changeAmt: Money = Money.ZERO,
+    val changeAmt: BigDecimal = BigDecimal.ZERO,
     val isCompleted: Boolean = false
 ) {
     init {
-        require(payAmt.isPositive()) { "Payment amount must be positive" }
-        require(changeAmt >= Money.ZERO) { "Change amount cannot be negative" }
+        require(payAmt > BigDecimal.ZERO) { "Payment amount must be positive" }
+        require(changeAmt >= BigDecimal.ZERO) { "Change amount cannot be negative" }
         require(hqId > 0) { "HQ ID must be positive" }
         require(storeId > 0) { "Store ID must be positive" }
         require(posId > 0) { "POS ID must be positive" }
@@ -26,7 +26,7 @@ data class SalesPayment(
         require(paymentMethodId > 0) { "Payment method ID must be positive" }
     }
 
-    fun isValidPayment(): Boolean = payAmt.isPositive() && paymentMethodId > 0
+    fun isValidPayment(): Boolean = payAmt > BigDecimal.ZERO && paymentMethodId > 0
 
     fun isCashPayment(): Boolean = paymentMethodId == CASH_PAYMENT_METHOD_ID
 
@@ -34,14 +34,14 @@ data class SalesPayment(
 
     fun complete(): SalesPayment = this.copy(isCompleted = true)
 
-    fun withChange(changeAmount: Money): SalesPayment {
-        require(changeAmount >= Money.ZERO) { "Change amount cannot be negative" }
+    fun withChange(changeAmount: BigDecimal): SalesPayment {
+        require(changeAmount >= BigDecimal.ZERO) { "Change amount cannot be negative" }
         require(isCashPayment()) { "Change can only be applied to cash payments" }
 
         return this.copy(changeAmt = changeAmount)
     }
 
-    fun getNetPaymentAmount(): Money = payAmt - changeAmt
+    fun getNetPaymentAmount(): BigDecimal = payAmt - changeAmt
 
     companion object {
         const val CASH_PAYMENT_METHOD_ID = 1L
@@ -53,9 +53,9 @@ data class SalesPayment(
             hqId: Long,
             storeId: Long,
             posId: Long,
-            payAmt: Money,
+            payAmt: BigDecimal,
             saleType: Boolean,
-            changeAmt: Money = Money.ZERO
+            changeAmt: BigDecimal = BigDecimal.ZERO
         ): SalesPayment {
             return SalesPayment(
                 id = null,
@@ -75,7 +75,7 @@ data class SalesPayment(
             hqId: Long,
             storeId: Long,
             posId: Long,
-            payAmt: Money,
+            payAmt: BigDecimal,
             saleType: Boolean
         ): SalesPayment {
             return SalesPayment(

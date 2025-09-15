@@ -1,5 +1,6 @@
 package com.gijun.mainserver.infrastructure.adapter.out.persistence.product.product.entity
 
+import com.gijun.mainserver.domain.product.product.model.ProductType
 import com.gijun.mainserver.infrastructure.adapter.out.persistence.common.entity.BaseEntity
 import jakarta.persistence.*
 import java.math.BigDecimal
@@ -20,6 +21,10 @@ open class ProductJpaEntity(
 
     @Column(name = "price", nullable = false, precision = 10, scale = 2)
     val price: BigDecimal,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "product_type", nullable = false, length = 20)
+    val productType: ProductType,
 
     @Column(name = "product_code", length = 50)
     val productCode: String?,

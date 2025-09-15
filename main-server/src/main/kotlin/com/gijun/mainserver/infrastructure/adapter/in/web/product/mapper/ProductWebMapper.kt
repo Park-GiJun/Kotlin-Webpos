@@ -6,9 +6,6 @@ import com.gijun.mainserver.application.dto.command.product.productStock.CreateP
 import com.gijun.mainserver.application.dto.result.product.product.CreateProductResult
 import com.gijun.mainserver.application.dto.result.product.product.ProductResult
 import com.gijun.mainserver.application.dto.result.product.product.UpdateProductResult
-import com.gijun.mainserver.domain.common.vo.Money
-import com.gijun.mainserver.domain.common.vo.ProductCode
-import com.gijun.mainserver.domain.common.vo.Quantity
 import com.gijun.mainserver.infrastructure.adapter.`in`.web.product.dto.*
 
 object ProductWebMapper {
@@ -17,9 +14,9 @@ object ProductWebMapper {
         return CreateProductCommand(
             hqId = request.hqId,
             name = request.name,
-            price = Money(request.price),
+            price = request.price,
             productType = request.productType,
-            productCode = request.productCode?.let { ProductCode(it) },
+            productCode = request.productCode ?: "",
             supplyAmt = request.supplyAmt,
             unit = request.unit,
             usageUnit = request.usageUnit,
@@ -28,8 +25,8 @@ object ProductWebMapper {
                     productId = 0L, // Will be set after product creation
                     hqId = request.hqId,
                     storeId = stock.storeId,
-                    unitQty = Quantity(stock.unitQty),
-                    usageQty = Quantity(stock.usageQty)
+                    unitQty = stock.unitQty,
+                    usageQty = stock.usageQty
                 )
             }
         )
@@ -39,8 +36,9 @@ object ProductWebMapper {
         return UpdateProductCommand(
             id = id,
             name = request.name,
-            price = Money(request.price),
-            productCode = request.productCode?.let { ProductCode(it) },
+            price = request.price,
+            productType = request.productType,
+            productCode = request.productCode ?: "",
             supplyAmt = request.supplyAmt,
             unit = request.unit,
             usageUnit = request.usageUnit
@@ -64,9 +62,9 @@ object ProductWebMapper {
             id = result.id,
             hqId = result.hqId,
             name = result.name,
-            price = result.price.value,
+            price = result.price,
             productType = result.productType,
-            productCode = result.productCode?.value,
+            productCode = result.productCode,
             supplyAmt = result.supplyAmt,
             unit = result.unit,
             usageUnit = result.usageUnit

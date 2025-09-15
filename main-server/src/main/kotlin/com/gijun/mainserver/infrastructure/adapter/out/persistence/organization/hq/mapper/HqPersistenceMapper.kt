@@ -1,8 +1,5 @@
 package com.gijun.mainserver.infrastructure.adapter.out.persistence.organization.hq.mapper
 
-import com.gijun.mainserver.domain.common.vo.Address
-import com.gijun.mainserver.domain.common.vo.Email
-import com.gijun.mainserver.domain.common.vo.PhoneNumber
 import com.gijun.mainserver.domain.organization.hq.model.Hq
 import com.gijun.mainserver.infrastructure.adapter.out.persistence.organization.hq.entity.HqJpaEntity
 
@@ -13,11 +10,11 @@ object HqPersistenceMapper {
             id = domain.id ?: 0L,
             name = domain.name,
             representative = domain.representative,
-            street = domain.address.street,
-            city = domain.address.city,
-            zipCode = domain.address.zipCode,
-            email = domain.email.value,
-            phoneNumber = domain.phoneNumber.value
+            street = domain.address,
+            city = "",
+            zipCode = "",
+            email = domain.email,
+            phoneNumber = domain.phoneNumber
         )
     }
 
@@ -26,13 +23,9 @@ object HqPersistenceMapper {
             id = if (entity.id == 0L) null else entity.id,
             name = entity.name,
             representative = entity.representative,
-            address = Address(
-                street = entity.street,
-                city = entity.city,
-                zipCode = entity.zipCode
-            ),
-            email = entity.email?.let { Email(it) } ?: Email(""),
-            phoneNumber = entity.phoneNumber?.let { PhoneNumber(it) } ?: PhoneNumber(""),
+            address = "${entity.street} ${entity.city} ${entity.zipCode}".trim(),
+            email = entity.email ?: "",
+            phoneNumber = entity.phoneNumber ?: ""
         )
     }
 
@@ -41,11 +34,11 @@ object HqPersistenceMapper {
             id = existingEntity.id,
             name = domain.name,
             representative = domain.representative,
-            street = domain.address.street,
-            city = domain.address.city,
-            zipCode = domain.address.zipCode,
-            email = domain.email.value,
-            phoneNumber = domain.phoneNumber.value
+            street = domain.address,
+            city = "",
+            zipCode = "",
+            email = domain.email,
+            phoneNumber = domain.phoneNumber
         )
     }
 }

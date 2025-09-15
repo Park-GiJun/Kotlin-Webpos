@@ -4,9 +4,6 @@ import com.gijun.mainserver.application.dto.command.organization.store.CreateSto
 import com.gijun.mainserver.application.dto.result.organization.store.CreateStoreResult
 import com.gijun.mainserver.application.dto.result.organization.store.StoreResult
 import com.gijun.mainserver.domain.common.exception.NullIdException
-import com.gijun.mainserver.domain.common.vo.Address
-import com.gijun.mainserver.domain.common.vo.Email
-import com.gijun.mainserver.domain.common.vo.PhoneNumber
 import com.gijun.mainserver.domain.organization.store.model.Store
 import java.time.Instant
 
@@ -14,13 +11,13 @@ object StoreApplicationMapper {
 
     fun toDomainFromCreateStoreCommand(command: CreateStoreCommand): Store {
         return Store(
+            id = null,
             hqId = command.hqId,
             name = command.name,
             representative = command.manager,
-            address = Address(command.street, command.city, command.zipCode),
-            phoneNumber = PhoneNumber(command.phoneNumber),
-            email = Email(command.email),
-            id = 0L
+            address = "${command.street} ${command.city} ${command.zipCode}".trim(),
+            phoneNumber = command.phoneNumber,
+            email = command.email
         )
     }
 
@@ -36,16 +33,17 @@ object StoreApplicationMapper {
     }
 
     fun toStoreResultFromDomain(domain: Store): StoreResult {
+        val addressParts = domain.address.split(" ")
         return StoreResult(
             storeId = domain.id ?: 0L,
             hqId = domain.hqId,
             storeName = domain.name,
             managerName = domain.representative,
-            street = domain.address.street,
-            city = domain.address.city,
-            zipCode = domain.address.zipCode,
-            email = domain.email.value,
-            phoneNumber = domain.phoneNumber.value,
+            street = if (addressParts.isNotEmpty()) addressParts[0] else "",
+            city = if (addressParts.size > 1) addressParts[1] else "",
+            zipCode = if (addressParts.size > 2) addressParts[2] else "",
+            email = domain.email,
+            phoneNumber = domain.phoneNumber,
             businessNumber = "", // TODO: Add business number to domain model
             createdAt = Instant.now(), // TODO: Get from entity when available
             updatedAt = Instant.now()  // TODO: Get from entity when available

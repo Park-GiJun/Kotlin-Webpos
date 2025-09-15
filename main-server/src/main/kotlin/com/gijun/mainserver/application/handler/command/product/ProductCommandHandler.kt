@@ -14,7 +14,6 @@ import com.gijun.mainserver.application.port.out.organization.store.StoreQueryRe
 import com.gijun.mainserver.application.port.out.product.product.ProductCommandRepository
 import com.gijun.mainserver.application.port.out.product.product.ProductQueryRepository
 import com.gijun.mainserver.application.port.out.product.productStock.ProductStockCommandRepository
-import com.gijun.mainserver.domain.common.vo.Quantity
 import com.gijun.mainserver.domain.product.productStock.model.ProductStock
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -42,9 +41,9 @@ class ProductCommandHandler(
                     Pair(stockCommand.unitQty, stockCommand.usageQty)
                 } else {
                     // 다른 매장은 0,0으로 초기화
-                    Pair(Quantity(BigDecimal.ZERO), Quantity(BigDecimal.ZERO))
+                    Pair(BigDecimal.ZERO, BigDecimal.ZERO)
                 }
-            } ?: Pair(Quantity(BigDecimal.ZERO), Quantity(BigDecimal.ZERO))
+            } ?: Pair(BigDecimal.ZERO, BigDecimal.ZERO)
 
             val productStock = ProductStock(
                 id = null,

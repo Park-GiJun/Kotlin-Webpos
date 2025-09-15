@@ -14,9 +14,3 @@ data class CreateProductRequest(
     val usageUnit: String,
     val initialStock: InitialStockRequest? = null
 )
-
-data class InitialStockRequest(
-    val storeId: Long,
-    val unitQty: BigDecimal,
-    val usageQty: BigDecimal
-)

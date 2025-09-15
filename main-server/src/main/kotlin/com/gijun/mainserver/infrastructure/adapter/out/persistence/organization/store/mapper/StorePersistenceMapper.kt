@@ -1,9 +1,6 @@
 package com.gijun.mainserver.infrastructure.adapter.out.persistence.organization.store.mapper
 
 import com.gijun.mainserver.application.dto.result.organization.store.StoreResult
-import com.gijun.mainserver.domain.common.vo.Address
-import com.gijun.mainserver.domain.common.vo.Email
-import com.gijun.mainserver.domain.common.vo.PhoneNumber
 import com.gijun.mainserver.domain.organization.store.model.Store
 import com.gijun.mainserver.infrastructure.adapter.out.persistence.organization.store.entity.StoreJpaEntity
 import java.time.ZoneOffset
@@ -16,11 +13,11 @@ object StorePersistenceMapper {
             hqId = domain.hqId,
             name = domain.name,
             representative = domain.representative,
-            street = domain.address.street,
-            city = domain.address.city,
-            zipCode = domain.address.zipCode,
-            email = domain.email.value,
-            phoneNumber = domain.phoneNumber.value
+            street = domain.address,
+            city = "",
+            zipCode = "",
+            email = domain.email,
+            phoneNumber = domain.phoneNumber
         )
     }
 
@@ -30,13 +27,9 @@ object StorePersistenceMapper {
             hqId = entity.hqId,
             name = entity.name,
             representative = entity.representative,
-            address = Address(
-                street = entity.street,
-                city = entity.city,
-                zipCode = entity.zipCode
-            ),
-            email = entity.email?.let { Email(it) } ?: Email("default@store.com"),
-            phoneNumber = entity.phoneNumber?.let { PhoneNumber(it) } ?: PhoneNumber("000-0000-0000")
+            address = "${entity.street} ${entity.city} ${entity.zipCode}".trim(),
+            email = entity.email ?: "",
+            phoneNumber = entity.phoneNumber ?: ""
         )
     }
 
@@ -46,11 +39,11 @@ object StorePersistenceMapper {
             hqId = domain.hqId,
             name = domain.name,
             representative = domain.representative,
-            street = domain.address.street,
-            city = domain.address.city,
-            zipCode = domain.address.zipCode,
-            email = domain.email.value,
-            phoneNumber = domain.phoneNumber.value
+            street = domain.address,
+            city = "",
+            zipCode = "",
+            email = domain.email,
+            phoneNumber = domain.phoneNumber
         )
     }
 

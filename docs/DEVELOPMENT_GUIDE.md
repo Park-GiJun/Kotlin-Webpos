@@ -126,7 +126,6 @@ data class CreateHqCommand(
     }
 }
 
-// 📤 Command Result 정의
 data class CreateHqResult(
     val hqId: Long,
     val name: String,
