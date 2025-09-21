@@ -9,8 +9,7 @@ object ProductStockPersistenceMapper {
         return ProductStockJpaEntity(
             id = domain.id ?: 0L,
             productId = domain.productId,
-            hqId = domain.hqId,
-            storeId = domain.storeId,
+            containerId = domain.containerId,
             unitQty = domain.unitQty,
             usageQty = domain.usageQty
         )
@@ -20,8 +19,7 @@ object ProductStockPersistenceMapper {
         return ProductStock(
             id = entity.id,
             productId = entity.productId,
-            hqId = entity.hqId,
-            storeId = entity.storeId,
+            containerId = entity.containerId,
             unitQty = entity.unitQty,
             usageQty = entity.usageQty
         )

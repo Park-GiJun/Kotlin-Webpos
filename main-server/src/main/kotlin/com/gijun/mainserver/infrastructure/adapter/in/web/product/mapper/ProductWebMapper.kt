@@ -23,8 +23,7 @@ object ProductWebMapper {
             initialStock = request.initialStock?.let { stock ->
                 CreateProductStockCommand(
                     productId = 0L, // Will be set after product creation
-                    hqId = request.hqId,
-                    storeId = stock.storeId,
+                    containerId = stock.containerId,
                     unitQty = stock.unitQty,
                     usageQty = stock.usageQty
                 )

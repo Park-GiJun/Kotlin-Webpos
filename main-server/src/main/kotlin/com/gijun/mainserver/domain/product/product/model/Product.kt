@@ -4,7 +4,7 @@ import java.math.BigDecimal
 
 data class Product(
     val id: Long?,
-    val hqId: Long?,
+    val hqId: Long,
     val name: String,
     val price: BigDecimal,
     val productType: ProductType,

@@ -15,11 +15,8 @@ open class ProductStockJpaEntity(
     @Column(name = "product_id", nullable = false)
     val productId: Long,
 
-    @Column(name = "hq_id", nullable = false)
-    val hqId: Long,
-
-    @Column(name = "store_id", nullable = false)
-    val storeId: Long,
+    @Column(name = "container_id", nullable = false)
+    val containerId: Long,
 
     @Column(name = "unit_qty", nullable = false, precision = 10, scale = 2)
     val unitQty: BigDecimal,

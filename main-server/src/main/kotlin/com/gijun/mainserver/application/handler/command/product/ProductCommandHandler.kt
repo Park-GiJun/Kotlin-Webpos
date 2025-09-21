@@ -15,6 +15,8 @@ import com.gijun.mainserver.application.port.out.product.product.ProductCommandR
 import com.gijun.mainserver.application.port.out.product.product.ProductQueryRepository
 import com.gijun.mainserver.application.port.out.product.productStock.ProductStockCommandRepository
 import com.gijun.mainserver.domain.product.productStock.model.ProductStock
+import com.gijun.mainserver.application.handler.cache.CacheHandler
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
@@ -25,36 +27,30 @@ class ProductCommandHandler(
     private val productCommandRepository: ProductCommandRepository,
     private val productQueryRepository: ProductQueryRepository,
     private val productStockCommandRepository: ProductStockCommandRepository,
-    private val storeQueryRepository: StoreQueryRepository
+    private val storeQueryRepository: StoreQueryRepository,
+    private val cacheHandler: CacheHandler
 ) : CreateProductUseCase, UpdateProductUseCase, DeleteProductUseCase {
+
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
     override fun createProductExecute(command: CreateProductCommand): CreateProductResult {
         val product = ProductApplicationMapper.toDomain(command)
         val savedProduct = productCommandRepository.save(product)
 
-        // 해당 HQ의 모든 매장에 대해 0,0 재고 생성
-        val stores = storeQueryRepository.findByHqId(command.hqId)
-        stores.forEach { store ->
-            val initialQuantity = command.initialStock?.let { stockCommand ->
-                if (stockCommand.storeId == store.id) {
-                    // 초기 재고가 지정된 매장인 경우 해당 값 사용
-                    Pair(stockCommand.unitQty, stockCommand.usageQty)
-                } else {
-                    // 다른 매장은 0,0으로 초기화
-                    Pair(BigDecimal.ZERO, BigDecimal.ZERO)
-                }
-            } ?: Pair(BigDecimal.ZERO, BigDecimal.ZERO)
-
+        // 초기 재고 생성 (Container 기반)
+        command.initialStock?.let { stockCommand ->
             val productStock = ProductStock(
                 id = null,
                 productId = savedProduct.id!!,
-                hqId = command.hqId,
-                storeId = store.id!!,
-                unitQty = initialQuantity.first,
-                usageQty = initialQuantity.second
+                containerId = stockCommand.containerId,
+                unitQty = stockCommand.unitQty,
+                usageQty = stockCommand.usageQty
             )
             productStockCommandRepository.save(productStock)
         }
+
+        invalidateProductCaches(command.hqId)
+        logger.debug("Cache invalidated after creating product: ${savedProduct.id}")
 
         return ProductApplicationMapper.toCreateResult(savedProduct)
     }
@@ -66,6 +62,11 @@ class ProductCommandHandler(
 
         val product = ProductApplicationMapper.toDomain(command)
         val updatedProduct = productCommandRepository.update(product)
+
+        cacheHandler.delete(CacheHandler.Keys.productKey(command.id))
+        invalidateProductCaches(product.hqId)
+        logger.debug("Cache invalidated after updating product: ${command.id}")
+
         return ProductApplicationMapper.toUpdateResult(updatedProduct)
     }
 
@@ -74,7 +75,27 @@ class ProductCommandHandler(
             "Product with id ${command.id} not found"
         }
 
+        val product = productQueryRepository.findById(command.id)
+
         productCommandRepository.delete(command.id)
+
+        cacheHandler.delete(CacheHandler.Keys.productKey(command.id))
+        product?.let { invalidateProductCaches(it.hqId) }
+        logger.debug("Cache invalidated after deleting product: ${command.id}")
+
         return ProductApplicationMapper.toDeleteResult(command.id)
+    }
+
+    private fun invalidateProductCaches(hqId: Long) {
+        cacheHandler.deletePattern("product:list:*")
+        cacheHandler.delete(CacheHandler.Keys.productListByHqKey(hqId))
+        cacheHandler.delete(CacheHandler.Keys.allProductsKey())
+    }
+
+    private fun invalidateProductCaches(hqId: Long, storeId: Long) {
+        cacheHandler.deletePattern("product:list:*")
+        cacheHandler.delete(CacheHandler.Keys.productListByHqKey(hqId))
+        cacheHandler.delete(CacheHandler.Keys.productListByStoreKey(storeId))
+        cacheHandler.delete(CacheHandler.Keys.allProductsKey())
     }
 }

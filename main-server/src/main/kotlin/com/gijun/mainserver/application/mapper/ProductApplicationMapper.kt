@@ -57,7 +57,7 @@ object ProductApplicationMapper {
     fun toDomain(command: UpdateProductCommand): Product {
         return Product(
             id = command.id,
-            hqId = null,
+            hqId = command.id,
             name = command.name,
             price = command.price,
             productType = command.productType,

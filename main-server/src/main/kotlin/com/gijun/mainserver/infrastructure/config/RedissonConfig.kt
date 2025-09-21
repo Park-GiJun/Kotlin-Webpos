@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Profile
 
 @Configuration
 @EnableCaching
-@Profile("cqrs")
 class RedissonConfig {
 
     @Value("\${spring.redis.host:localhost}")

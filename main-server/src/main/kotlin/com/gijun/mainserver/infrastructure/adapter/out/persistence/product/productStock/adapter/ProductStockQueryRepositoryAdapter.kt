@@ -24,18 +24,13 @@ class ProductStockQueryRepositoryAdapter(
             .orElse(null)
     }
 
-    override fun findByHqId(hqId: Long): List<ProductStock> {
-        return productStockJpaRepository.findByHqId(hqId)
+    override fun findByContainerId(containerId: Long): List<ProductStock> {
+        return productStockJpaRepository.findByContainerId(containerId)
             .map { ProductStockPersistenceMapper.toDomain(it) }
     }
 
-    override fun findByStoreId(storeId: Long): List<ProductStock> {
-        return productStockJpaRepository.findByStoreId(storeId)
-            .map { ProductStockPersistenceMapper.toDomain(it) }
-    }
-
-    override fun findByProductIdAndStoreId(productId: Long, storeId: Long): ProductStock? {
-        return productStockJpaRepository.findByProductIdAndStoreId(productId, storeId)
+    override fun findByProductIdAndContainerId(productId: Long, containerId: Long): ProductStock? {
+        return productStockJpaRepository.findByProductIdAndContainerId(productId, containerId)
             ?.let { ProductStockPersistenceMapper.toDomain(it) }
     }
 

@@ -10,12 +10,12 @@ object ProductStockWebMapper {
 
     fun toCommand(
         productId: Long,
-        storeId: Long,
+        containerId: Long,
         request: AdjustProductStockRequest
     ): AdjustProductStockCommand {
         return AdjustProductStockCommand(
             productId = productId,
-            storeId = storeId,
+            containerId = containerId,
             adjustmentType = StockAdjustmentType.valueOf(request.adjustmentType),
             unitQty = request.unitQty,
             usageQty = request.usageQty,
@@ -27,7 +27,7 @@ object ProductStockWebMapper {
         return AdjustProductStockResponse(
             productStockId = result.productStockId,
             productId = result.productId,
-            storeId = result.storeId,
+            containerId = result.containerId,
             unitQtyBefore = result.unitQtyBefore,
             usageQtyBefore = result.usageQtyBefore,
             unitQtyAfter = result.unitQtyAfter,

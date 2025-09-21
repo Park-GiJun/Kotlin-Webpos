@@ -5,7 +5,7 @@ import java.math.BigDecimal
 data class AdjustProductStockResult(
     val productStockId: Long,
     val productId: Long,
-    val storeId: Long,
+    val containerId: Long,
     val unitQtyBefore: BigDecimal,
     val usageQtyBefore: BigDecimal,
     val unitQtyAfter: BigDecimal,
