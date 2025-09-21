@@ -17,12 +17,16 @@ POS Server에서 판매 처리 시 Main Server의 재고를 차감하는 프로�
 ### 재고 계층 구조
 ```
 HQ (본사)
+ ├── Container (창고/컨테이너)
+ │    └── ProductStock (상품별 재고)
  └── Store (매장)
-      └── Product (상품별 재고)
+      └── Product (상품 마스터 데이터)
 ```
-- **HQ 재고**: 본사 전체 재고 총량
-- **Store 재고**: 각 매장별 할당 재고
-- **Product 재고**: 매장 내 상품별 실재고
+- **HQ**: 본사 조직 정보
+- **Container**: 물리적 창고 또는 논리적 컨테이너 단위
+- **ProductStock**: 컨테이너별 상품 재고
+- **Store**: 매장 정보 (재고와 분리)
+- **Product**: 상품 마스터 데이터 (가격, 타입 등)
 
 ## 처리 흐름
 
@@ -105,6 +109,7 @@ Main Server: DLQ(Dead Letter Queue)로 이동
 ```json
 {
   "hqId": "HQ001",
+  "containerId": "CONTAINER001",
   "storeId": "STORE001",
   "items": [
     {
@@ -127,6 +132,7 @@ Main Server: DLQ(Dead Letter Queue)로 이동
     "orderId": "ORD123456",
     "reservationId": "RES789",
     "hqId": "HQ001",
+    "containerId": "CONTAINER001",
     "storeId": "STORE001",
     "items": [
       {
@@ -148,19 +154,24 @@ Main Server: DLQ(Dead Letter Queue)로 이동
   "timestamp": "2024-01-01T10:00:01Z",
   "data": {
     "hqId": "HQ001",
-    "storeId": "STORE001",
+    "containerId": "CONTAINER001",
     "productId": "PRD001",
     "stockLevels": {
-      "hqStock": {
-        "previous": 1000,
-        "current": 998
-      },
-      "storeStock": {
-        "previous": 100,
-        "current": 98
+      "containerStock": {
+        "unitQty": {
+          "previous": 1000,
+          "current": 998
+        },
+        "usageQty": {
+          "previous": 500,
+          "current": 498
+        }
       }
     },
-    "changeAmount": -2,
+    "changeAmount": {
+      "unitQty": -2,
+      "usageQty": -2
+    },
     "changeReason": "SALE",
     "referenceId": "ORD123456"
   }
@@ -171,37 +182,42 @@ Main Server: DLQ(Dead Letter Queue)로 이동
 
 ### Main Server가 제공해야 할 API
 
-1. **매장별 재고 조회**
-   - `GET /api/v1/stores/{storeId}/products/{productId}/stock`
-   - Response: `{hqId, storeId, productId, hqStock, storeStock, availableStock, reservedStock}`
+1. **컨테이너별 재고 조회**
+   - `GET /api/v1/containers/{containerId}/products/{productId}/stock`
+   - Response: `{hqId, containerId, productId, unitQty, usageQty, reservedStock}`
 
 2. **재고 예약**
    - `POST /api/v1/inventory/reserve`
-   - Request: `{hqId, storeId, items: [{productId, quantity}], transactionId}`
+   - Request: `{hqId, containerId, items: [{productId, quantity}], transactionId}`
    - Response: `{reservationId, expiresAt, items: [{productId, reserved}]}`
 
 3. **예약 취소**
    - `DELETE /api/v1/inventory/reserve/{reservationId}`
    - Response: `{success: boolean, message}`
 
-4. **HQ to Store 재고 분배** (관리자 전용)
-   - `POST /api/v1/admin/inventory/distribute`
-   - Request: `{hqId, storeId, items: [{productId, quantity}], reason}`
-   - Response: `{distributionId, status, items}`
-   - Note: 수기 처리, 관리자 권한 필요
+4. **컨테이너 재고 조정** (관리자 전용)
+   - `POST /api/v1/admin/container/{containerId}/adjust`
+   - Request: `{adjustmentType: "INCREASE|DECREASE", unitQty, usageQty, reason}`
+   - Response: `{adjustmentId, beforeQty, afterQty}`
+
+5. **상품 컨테이너 관리** (관리자 전용)
+   - `POST /api/v1/admin/product-containers/adjust`
+   - Request: `{hqId, containerId, adjustmentType, unitQty, usageQty, reason}`
+   - Response: `{containerAdjustmentId, status, stockLevels}`
 
 ## Redis 분산락 전략
 
 ### 락 구조
 ```
-Lock Key Pattern: inventory:lock:{hqId}:{storeId}:{productId}
+Lock Key Pattern: inventory:lock:{hqId}:{containerId}:{productId}
 Lock Value: {nodeId}:{timestamp}:{requestId}
 TTL: 10초 (자동 만료)
 
 계층별 락 키:
 - HQ 레벨: inventory:lock:hq:{hqId}
-- Store 레벨: inventory:lock:store:{hqId}:{storeId}
-- Product 레벨: inventory:lock:product:{hqId}:{storeId}:{productId}
+- Container 레벨: inventory:lock:container:{hqId}:{containerId}
+- ProductStock 레벨: inventory:lock:stock:{hqId}:{containerId}:{productId}
+- ProductContainer 레벨: inventory:lock:product-container:{hqId}:{containerId}
 ```
 
 ### Redlock 알고리즘 적용
@@ -210,33 +226,39 @@ TTL: 10초 (자동 만료)
 class RedisDistributedLock {
     fun acquireLock(
         hqId: String,
-        storeId: String,
+        containerId: String,
         productId: String,
         timeout: Duration
     ): Boolean {
-        val lockKey = "inventory:lock:product:$hqId:$storeId:$productId"
+        val lockKey = "inventory:lock:stock:$hqId:$containerId:$productId"
         val lockValue = "${nodeId}:${timestamp}:${UUID.randomUUID()}"
 
-        // SET NX EX 명령으로 원자적 처리
-        return redis.setNX(lockKey, lockValue, timeout)
+        // Redisson RLock 사용
+        val lock = redisson.getLock(lockKey)
+        return try {
+            lock.tryLock(timeout.toMillis(), TimeUnit.MILLISECONDS)
+        } catch (e: Exception) {
+            false
+        }
     }
 
     fun releaseLock(
         hqId: String,
-        storeId: String,
+        containerId: String,
         productId: String,
         lockValue: String
     ): Boolean {
-        val lockKey = "inventory:lock:product:$hqId:$storeId:$productId"
-        // Lua 스크립트로 원자적 해제
-        val script = """
-            if redis.call("get", KEYS[1]) == ARGV[1] then
-                return redis.call("del", KEYS[1])
-            else
-                return 0
-            end
-        """
-        return redis.eval(script, lockKey, lockValue)
+        val lockKey = "inventory:lock:stock:$hqId:$containerId:$productId"
+        // Redisson의 RLock 사용으로 원자적 해제
+        val lock = redisson.getLock(lockKey)
+        return try {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock()
+                true
+            } else false
+        } catch (e: Exception) {
+            false
+        }
     }
 }
 ```
@@ -287,10 +309,11 @@ class RedisDistributedLock {
    - 락 타임아웃: 10초
 
 4. **재고 계층 관리**
-   - HQ 총 재고 = 모든 Store 재고 합계
-   - Store 재고 이동 시 HQ 재고는 불변
-   - HQ to Store 재고 분배는 수기 처리 (관리자 권한)
-   - 신규 입고는 HQ 재고로 먼저 반영
+   - ProductContainer: HQ-Container 단위 재고 관리
+   - ProductStock: Container별 상품 재고 (unitQty, usageQty)
+   - Store는 재고와 독립적으로 관리 (조직 정보만)
+   - 신규 입고는 Container 재고로 직접 반영
+   - Container 간 재고 이동은 수기 처리 (관리자 권한)
 
 ## 모니터링 지표
 
