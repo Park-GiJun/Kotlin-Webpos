@@ -70,7 +70,7 @@ class RedisCacheAdapter(
 
     override fun exists(key: String): Boolean {
         return try {
-            redisTemplate.hasKey(key) == true
+            redisTemplate.hasKey(key)
         } catch (e: Exception) {
             logger.error("Error checking cache existence for key: $key", e)
             false

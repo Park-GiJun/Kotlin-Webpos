@@ -10,9 +10,7 @@ object ProductContainerPersistenceMapper {
             id = entity.id,
             hqId = entity.hqId,
             containerId = entity.containerId,
-            containerName = entity.containerName,
-            unitQty = entity.unitQty,
-            usageQty = entity.usageQty
+            containerName = entity.containerName
         )
     }
 
@@ -21,9 +19,7 @@ object ProductContainerPersistenceMapper {
             id = domain.id ?: 0L,
             hqId = domain.hqId,
             containerId = domain.containerId,
-            containerName = domain.containerName,
-            unitQty = domain.unitQty,
-            usageQty = domain.usageQty
+            containerName = domain.containerName
         )
     }
 }
