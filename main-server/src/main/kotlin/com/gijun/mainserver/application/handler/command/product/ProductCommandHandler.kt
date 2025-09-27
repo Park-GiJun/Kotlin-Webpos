@@ -16,6 +16,7 @@ import com.gijun.mainserver.application.port.out.product.product.ProductQueryRep
 import com.gijun.mainserver.application.port.out.product.productStock.ProductStockCommandRepository
 import com.gijun.mainserver.domain.product.productStock.model.ProductStock
 import com.gijun.mainserver.application.handler.cache.CacheHandler
+import com.gijun.mainserver.domain.common.exception.EntityNotFoundException
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -56,8 +57,8 @@ class ProductCommandHandler(
     }
 
     override fun updateProductExecute(command: UpdateProductCommand): UpdateProductResult {
-        require(productQueryRepository.existsById(command.id)) {
-            "Product with id ${command.id} not found"
+        if (!productQueryRepository.existsById(command.id)) {
+            throw EntityNotFoundException("Product", command.id.toString())
         }
 
         val product = ProductApplicationMapper.toDomain(command)
@@ -71,8 +72,8 @@ class ProductCommandHandler(
     }
 
     override fun deleteProductExecute(command: DeleteProductCommand): DeleteProductResult {
-        require(productQueryRepository.existsById(command.id)) {
-            "Product with id ${command.id} not found"
+        if (!productQueryRepository.existsById(command.id)) {
+            throw EntityNotFoundException("Product", command.id.toString())
         }
 
         val product = productQueryRepository.findById(command.id)

@@ -51,8 +51,8 @@ class ProductContainerCommandHandler(
     }
 
     override fun updateProductContainerExecute(command: UpdateProductContainerCommand): UpdateProductContainerResult {
-        require(productContainerQueryRepository.existsById(command.id)) {
-            "ProductContainer with id ${command.id} not found"
+        if (!productContainerQueryRepository.existsById(command.id)) {
+            throw EntityNotFoundException("ProductContainer", command.id.toString())
         }
 
         val productContainer = ProductContainer(

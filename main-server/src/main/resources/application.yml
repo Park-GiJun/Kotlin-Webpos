@@ -1,11 +1,14 @@
 spring:
   application:
     name: main-server
+  cloud:
+    compatibility-verifier:
+      enabled: false
 
   # Single database configuration - no CQRS DB separation
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${DB_HOST:mysql-service}:${DB_PORT:3306}/${DB_NAME:main_server}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3307}/${DB_NAME:main_server}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
     username: ${DB_USER:mainuser}
     password: ${DB_PASSWORD:mainpassword}
     hikari:
@@ -26,7 +29,7 @@ spring:
   # Redis configuration
   data:
     redis:
-      host: ${REDIS_HOST:redis-service}
+      host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       timeout: 2000ms
       lettuce:
@@ -46,7 +49,7 @@ spring:
 
   # Kafka for event streaming
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka-service:9092}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -79,7 +82,7 @@ management:
 redisson:
   config: |
     singleServerConfig:
-      address: "redis://${REDIS_HOST:redis-service}:${REDIS_PORT:6379}"
+      address: "redis://${REDIS_HOST:localhost}:${REDIS_PORT:6379}"
       connectionPoolSize: 10
       connectionMinimumIdleSize: 5
       timeout: 3000
