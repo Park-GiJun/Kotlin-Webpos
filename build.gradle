@@ -42,11 +42,10 @@ subprojects {
         runtimeOnly 'com.mysql:mysql-connector-j'
         implementation 'com.zaxxer:HikariCP'
         
-        // Cache and messaging for MSA
+        // Cache for MSA
         implementation 'org.springframework.boot:spring-boot-starter-data-redis'
         implementation 'org.springframework.boot:spring-boot-starter-cache'
         implementation 'org.redisson:redisson-spring-boot-starter:3.24.3'
-        implementation 'org.springframework.kafka:spring-kafka'
         
         // Service discovery and circuit breaker (future MSA features)
         implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
