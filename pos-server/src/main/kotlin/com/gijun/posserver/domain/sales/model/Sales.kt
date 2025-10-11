@@ -10,7 +10,10 @@ data class Sales(
     init {
         require(details.isNotEmpty()) { "Sales must have at least one detail item" }
         require(payments.isNotEmpty()) { "Sales must have at least one payment" }
-        require(details.all { it.billId == header.id }) { "All details must belong to the same bill" }
+        // Skip billId validation during creation (header.id is null and detail.billId is 0)
+        if (header.id != null) {
+            require(details.all { it.billId == header.id }) { "All details must belong to the same bill" }
+        }
     }
 
     fun getTotalSaleAmount(): BigDecimal = details.sumOf { it.saleAmt }

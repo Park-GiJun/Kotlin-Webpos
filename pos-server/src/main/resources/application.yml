@@ -43,6 +43,13 @@ spring:
           max-idle: 8
           min-idle: 0
 
+  web:
+    resources:
+      add-mappings: false
+
+  mvc:
+    throw-exception-if-no-handler-found: true
+
 logging:
   level:
     org.hibernate.SQL: DEBUG
@@ -64,3 +71,6 @@ management:
   endpoint:
     health:
       show-details: always
+
+main-server:
+  base-url: http://localhost:8080/main

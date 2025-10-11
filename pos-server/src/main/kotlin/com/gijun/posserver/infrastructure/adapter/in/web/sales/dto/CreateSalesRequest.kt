@@ -23,7 +23,6 @@ data class CreateSalesRequest(
 
     val saleType: Boolean,
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     val saleDate: LocalDateTime,
 
     @field:NotEmpty(message = "Sales must have at least one detail item")

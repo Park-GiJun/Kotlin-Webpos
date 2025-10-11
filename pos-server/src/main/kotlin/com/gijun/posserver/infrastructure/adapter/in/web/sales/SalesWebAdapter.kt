@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
 
 @RestController
-@RequestMapping("/pos/sales")
+@RequestMapping("/sales")
 class SalesWebAdapter(
     private val salesCommandHandler: SalesCommandHandler,
     private val salesQueryHandler: SalesQueryHandler

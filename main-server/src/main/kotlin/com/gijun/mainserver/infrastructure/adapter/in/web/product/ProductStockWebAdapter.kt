@@ -1,6 +1,7 @@
 package com.gijun.mainserver.infrastructure.adapter.`in`.web.product
 
 import com.gijun.mainserver.application.port.`in`.product.AdjustProductStockUseCase
+import com.gijun.mainserver.infrastructure.adapter.`in`.web.common.ApiResponse
 import com.gijun.mainserver.infrastructure.adapter.`in`.web.product.dto.AdjustProductStockRequest
 import com.gijun.mainserver.infrastructure.adapter.`in`.web.product.dto.AdjustProductStockResponse
 import com.gijun.mainserver.infrastructure.adapter.`in`.web.product.mapper.ProductStockWebMapper
@@ -18,11 +19,11 @@ class ProductStockWebAdapter(
         @PathVariable productId: Long,
         @PathVariable storeId: Long,
         @RequestBody request: AdjustProductStockRequest
-    ): ResponseEntity<AdjustProductStockResponse> {
+    ): ResponseEntity<ApiResponse<AdjustProductStockResponse>> {
         val command = ProductStockWebMapper.toCommand(productId, storeId, request)
         val result = adjustProductStockUseCase.adjustProductStockExecute(command)
         val response = ProductStockWebMapper.toResponse(result)
 
-        return ResponseEntity.ok(response)
+        return ResponseEntity.ok(ApiResponse.success(response))
     }
 }

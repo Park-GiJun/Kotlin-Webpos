@@ -22,7 +22,7 @@ data class SalesPayment(
         require(hqId > 0) { "HQ ID must be positive" }
         require(storeId > 0) { "Store ID must be positive" }
         require(posId > 0) { "POS ID must be positive" }
-        require(billId > 0) { "Bill ID must be positive" }
+        require(billId >= 0) { "Bill ID cannot be negative" }
         require(paymentMethodId > 0) { "Payment method ID must be positive" }
     }
 

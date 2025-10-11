@@ -26,6 +26,10 @@ spring:
         show_sql: true
     open-in-view: false
 
+  sql:
+    init:
+      mode: never
+
   # Redis configuration
   data:
     redis:

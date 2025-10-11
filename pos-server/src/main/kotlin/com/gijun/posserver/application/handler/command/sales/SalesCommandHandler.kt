@@ -6,17 +6,24 @@ import com.gijun.posserver.application.dto.result.sales.SalesResult
 import com.gijun.posserver.application.mapper.SalesApplicationMapper
 import com.gijun.posserver.application.port.out.sales.SalesCommandRepository
 import com.gijun.posserver.application.port.out.sales.SalesQueryRepository
+import com.gijun.posserver.application.port.out.stock.StockAdjustmentClient
+import com.gijun.posserver.application.port.out.stock.StockAdjustmentRequest
 import com.gijun.posserver.domain.common.exception.DuplicateEntityException
 import com.gijun.posserver.domain.common.exception.EntityNotFoundException
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.math.BigDecimal
 
 @Service
 @Transactional
 class SalesCommandHandler(
     private val salesCommandRepository: SalesCommandRepository,
-    private val salesQueryRepository: SalesQueryRepository
+    private val salesQueryRepository: SalesQueryRepository,
+    private val stockAdjustmentClient: StockAdjustmentClient
 ) {
+
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
     fun createSales(command: CreateSalesCommand): SalesResult {
         if (salesQueryRepository.existsByBillNo(command.billNo)) {
@@ -27,7 +34,30 @@ class SalesCommandHandler(
 
         val savedSales = salesCommandRepository.save(sales)
 
+        // 판매 완료 후 재고 차감
+        adjustStockForSales(savedSales)
+
         return SalesApplicationMapper.toResult(savedSales)
+    }
+
+    private fun adjustStockForSales(sales: com.gijun.posserver.domain.sales.model.Sales) {
+        sales.details.forEach { detail ->
+            try {
+                val request = StockAdjustmentRequest(
+                    productId = detail.productId,
+                    storeId = detail.storeId,
+                    adjustmentType = "DECREASE",
+                    unitQty = BigDecimal.ZERO,
+                    usageQty = detail.saleQty,
+                    reason = "판매 (Bill No: ${sales.header.billNo})"
+                )
+                stockAdjustmentClient.adjustStock(request)
+                logger.info("Stock adjusted for productId=${detail.productId}, qty=${detail.saleQty}")
+            } catch (e: Exception) {
+                logger.error("Failed to adjust stock for productId=${detail.productId}: ${e.message}", e)
+                throw RuntimeException("재고 차감 실패: ${e.message}", e)
+            }
+        }
     }
 
     fun updateSales(command: UpdateSalesCommand): SalesResult {
